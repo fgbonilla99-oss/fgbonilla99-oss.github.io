@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formulario de Estación</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { max-width: 500px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2, h3 { color: #333; }
+        div { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box; /* Importante para que el padding no afecte el ancho */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background-color: #0056b3; }
+        #mensaje-exito { color: green; font-weight: bold; display: none; }
+        #mensaje-error { color: red; font-weight: bold; display: none; }
+        
+        /* Oculta el formulario de datos al inicio */
+        #formulario-container { display: none; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container" id="login-container">
+        <h2>Inicio de Sesión</h2>
+        
+        <div>
+            <label for="num_empleado">Número de Empleado:</label>
+            <input type="text" id="num_empleado" required>
+        </div>
+        
+        <div>
+            <label for="estacion_trabajo">Estación de Trabajo:</label>
+            <input type="text" id="estacion_trabajo" required>
+        </div>
+        
+        <button id="btn-login">Ingresar</button>
+    </div>
+
+    <div class="container" id="formulario-container">
+        
+        <h3>Usuario: <span id="info-usuario" style="color:#0056b3;"></span></h3>
+        <hr>
+
+        <form id="miFormulario">
+            
+            <div>
+                <label for="codigo_barras">Código de ticket:</label>
+                <input type="text" id="codigo_barras" name="codigo_barras" required>
+            </div>
+            
+            <div>
+                <label for="opcion1">Persiana con PINHOLE (Si/No):</label>
+                <select id="opcion1" name="opcion1">
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="opcion2">Subir / Bajar 3 veses (Si/No):</label>
+                <select id="opcion2" name="opcion2">
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="cantidad">En caso de PINHOLE, #Seccion del PINHOLE (Número):</label>
+                <input type="number" id="cantidad" name="cantidad" required>
+            </div>
+            
+            <button type="submit">Enviar Datos</button>
+        </form>
+        
+        <p id="mensaje-exito">¡Datos guardados! Listo para el siguiente escaneo.</p>
+        <p id="mensaje-error">Hubo un error al enviar. Intenta de nuevo.</p>
+    </div>
+
+
+    <script>
+        // --- 1. CONFIGURACIÓN ---
+        // Pega tu NUEVA URL de la aplicación web aquí
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxOHuniH-cxCZNc0YpC6TAHpAgqLm2GUBLIT1v0cCUo0Lx_n5C_JTprfa09Nsikvbsb/exec";
+
+        // Variables para guardar los datos del "login"
+        let empleadoLogueado = "";
+        let estacionLogueada = "";
+
+        // --- 2. REFERENCIAS A ELEMENTOS DEL DOM ---
+        const loginContainer = document.getElementById('login-container');
+        const formularioContainer = document.getElementById('formulario-container');
+        const btnLogin = document.getElementById('btn-login');
+        const infoUsuario = document.getElementById('info-usuario');
+        
+        const formulario = document.getElementById('miFormulario');
+        const inputCodigoBarras = document.getElementById('codigo_barras');
+        const mensajeExito = document.getElementById('mensaje-exito');
+        const mensajeError = document.getElementById('mensaje-error');
+
+        // --- 3. EVENT LISTENER PARA EL "LOGIN" ---
+        btnLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const numEmpleado = document.getElementById('num_empleado').value;
+            const estacion = document.getElementById('estacion_trabajo').value;
+            
+            if (numEmpleado === "" || estacion === "") {
+                alert("Por favor, ingresa el número de empleado y la estación.");
+                return;
+            }
+            
+            // Guardamos los datos en nuestras variables
+            empleadoLogueado = numEmpleado;
+            estacionLogueada = estacion;
+            
+            // Actualizamos la UI
+            infoUsuario.textContent = `${empleadoLogueado} @ ${estacionLogueada}`;
+            
+            // Ocultamos el login y mostramos el formulario
+            loginContainer.style.display = 'none';
+            formularioContainer.style.display = 'block';
+            
+            // Ponemos el foco en el campo de código de barras
+            inputCodigoBarras.focus();
+        });
+
+        // --- 4. EVENT LISTENER PARA EL ENVÍO DEL FORMULARIO ---
+        formulario.addEventListener('submit', function(e) {
+            e.preventDefault(); // Evita que la página se recargue
+            
+            // Ocultamos mensajes previos
+            mensajeExito.style.display = 'none';
+            mensajeError.style.display = 'none';
+            
+            const formData = new FormData(this);
+            
+            // ---- ¡IMPORTANTE! ----
+            // Añadimos los datos del "login" al formulario que se enviará
+            formData.append("numero_empleado", empleadoLogueado);
+            formData.append("estacion_trabajo", estacionLogueada);
+            // -----------------------
+            
+            fetch(URL_SCRIPT, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    mensajeExito.style.display = 'block';
+                    formulario.reset(); // Limpia solo el formulario de datos
+                    inputCodigoBarras.focus(); // Pone el cursor de nuevo en el código de barras
+                } else {
+                    console.error('Error del script:', data.error); 
+                    mensajeError.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error de Fetch:', error);
+                mensajeError.style.display = 'block';
+            });
+        });
+    </script>
+
+</body>
+</html>
