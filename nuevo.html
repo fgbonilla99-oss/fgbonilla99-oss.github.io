@@ -15,6 +15,13 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+        
+        /* --- NUEVO: Estilo para campos deshabilitados --- */
+        input:disabled {
+            background-color: #eee;
+            cursor: not-allowed;
+        }
+
         button {
             padding: 12px 20px;
             background-color: #007bff;
@@ -72,10 +79,11 @@
             </div>
 
             <div>
-                <label for="opcion2">Subir / Bajar 3 veses (Si/No):</label>
+                <label for="opcion2">AGL - Subir / Bajar 3 veses (Si/No):</label>
                 <select id="opcion2" name="opcion2">
                     <option value="Si">Si</option>
                     <option value="No">No</option>
+                    <option value="NA">N/A</option>
                 </select>
             </div>
 
@@ -94,10 +102,8 @@
 
     <script>
         // --- 1. CONFIGURACIÓN ---
-        // Pega tu NUEVA URL de la aplicación web aquí
         const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxOHuniH-cxCZNc0YpC6TAHpAgqLm2GUBLIT1v0cCUo0Lx_n5C_JTprfa09Nsikvbsb/exec";
 
-        // Variables para guardar los datos del "login"
         let empleadoLogueado = "";
         let estacionLogueada = "";
 
@@ -112,6 +118,11 @@
         const mensajeExito = document.getElementById('mensaje-exito');
         const mensajeError = document.getElementById('mensaje-error');
 
+        // --- NUEVO: Referencias para la lógica de habilitar/deshabilitar ---
+        const selectPinhole = document.getElementById('opcion1');
+        const inputSeccion = document.getElementById('cantidad');
+
+
         // --- 3. EVENT LISTENER PARA EL "LOGIN" ---
         btnLogin.addEventListener('click', function(e) {
             e.preventDefault();
@@ -124,36 +135,28 @@
                 return;
             }
             
-            // Guardamos los datos en nuestras variables
             empleadoLogueado = numEmpleado;
             estacionLogueada = estacion;
             
-            // Actualizamos la UI
             infoUsuario.textContent = `${empleadoLogueado} @ ${estacionLogueada}`;
             
-            // Ocultamos el login y mostramos el formulario
             loginContainer.style.display = 'none';
             formularioContainer.style.display = 'block';
             
-            // Ponemos el foco en el campo de código de barras
             inputCodigoBarras.focus();
         });
 
         // --- 4. EVENT LISTENER PARA EL ENVÍO DEL FORMULARIO ---
         formulario.addEventListener('submit', function(e) {
-            e.preventDefault(); // Evita que la página se recargue
+            e.preventDefault(); 
             
-            // Ocultamos mensajes previos
             mensajeExito.style.display = 'none';
             mensajeError.style.display = 'none';
             
             const formData = new FormData(this);
             
-            // ---- ¡IMPORTANTE! ----
-            // Añadimos los datos del "login" al formulario que se enviará
             formData.append("numero_empleado", empleadoLogueado);
             formData.append("estacion_trabajo", estacionLogueada);
-            // -----------------------
             
             fetch(URL_SCRIPT, {
                 method: 'POST',
@@ -163,8 +166,12 @@
             .then(data => {
                 if (data.result === 'success') {
                     mensajeExito.style.display = 'block';
-                    formulario.reset(); // Limpia solo el formulario de datos
-                    inputCodigoBarras.focus(); // Pone el cursor de nuevo en el código de barras
+                    formulario.reset(); 
+                    
+                    // --- NUEVO: Asegurarse de re-habilitar el campo al resetear ---
+                    inputSeccion.disabled = false;
+
+                    inputCodigoBarras.focus(); 
                 } else {
                     console.error('Error del script:', data.error); 
                     mensajeError.style.display = 'block';
@@ -175,6 +182,19 @@
                 mensajeError.style.display = 'block';
             });
         });
+
+        // --- 5. NUEVO: Event listener para la lógica del PINHOLE ---
+        selectPinhole.addEventListener('change', function() {
+            if (this.value === 'No') {
+                // Si no hay Pinhole, deshabilita y limpia el campo de sección
+                inputSeccion.disabled = true;
+                inputSeccion.value = '';
+            } else {
+                // Si hay Pinhole, habilita el campo
+                inputSeccion.disabled = false;
+            }
+        });
+
     </script>
 
 </body>
