@@ -5,41 +5,40 @@
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
-            margin: 0; /* Elimina el margen predeterminado */
+            margin: 0;
             background-color: #f4f4f4; 
-            display: flex; /* Para centrar el main-layout */
-            justify-content: center; /* Centra horizontalmente */
-            align-items: center; /* Centra verticalmente */
-            min-height: 100vh; /* Ocupa al menos el alto de la ventana */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .main-layout {
-            display: flex; /* Habilita flexbox para las columnas */
+            display: flex;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden; /* Para que la sombra se vea bien */
-            max-width: 900px; /* Ancho máximo para el contenedor principal */
+            overflow: hidden;
+            max-width: 900px;
             width: 95%;
         }
         .column {
             padding: 30px;
             box-sizing: border-box;
-            flex: 1; /* Las columnas se expanden por igual */
+            flex: 1;
         }
         .column.image-column {
             background-color: #e0e0e0;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 0; /* Sin padding para que la imagen ocupe todo */
+            padding: 0;
         }
         .column.image-column img {
             max-width: 100%;
             max-height: 100%;
-	    width: 200px;
             display: block;
-            object-fit: cover; /* Recorta la imagen para que cubra el espacio */
-            border-radius: 8px 0 0 8px; /* Redondea esquina */
+            object-fit: cover;
+            border-radius: 8px 0 0 8px;
         }
 
         h2, h3 { color: #333; margin-top: 0; }
@@ -53,13 +52,10 @@
             border-radius: 4px;
             font-size: 16px;
         }
-
-        /* Estilo para campos deshabilitados (de tu código) */
         input:disabled {
             background-color: #eee;
             cursor: not-allowed;
         }
-
         button {
             padding: 12px 20px;
             background-color: #007bff;
@@ -78,17 +74,16 @@
         #info-usuario { color:#007bff; }
         hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
 
-        /* Responsive: Una columna en pantallas pequeñas */
         @media (max-width: 768px) {
             .main-layout {
-                flex-direction: column; /* Apila las columnas */
+                flex-direction: column;
                 max-width: 100%;
                 width: 100%;
                 border-radius: 0;
             }
             .column { padding: 20px; }
             .column.image-column img {
-                height: 200px; /* Altura fija en móvil */
+                height: 200px;
                 border-radius: 0;
             }
         }
@@ -109,12 +104,12 @@
                 
                 <div>
                     <label for="num_empleado">Número de Empleado:</label>
-                    <input type="text" id="num_empleado" required>
+                    <input type="text" id="num_empleado" required minlength="7">
                 </div>
                 
                 <div>
                     <label for="estacion_trabajo">Estación de Trabajo:</label>
-                    <input type="text" id="estacion_trabajo" required>
+                    <input type="text" id="estacion_trabajo" required minlength="10">
                 </div>
                 
                 <button id="btn-login">Ingresar</button>
@@ -122,14 +117,14 @@
 
             <div id="formulario-container">
                 
-                <h3>Usuario: <span id="info-usuario" style="color:#0056b3;"></span></h3>
+                <h3>Usuario: <span id="info-usuario"></span></h3>
                 <hr>
 
                 <form id="miFormulario">
                     
                     <div>
                         <label for="codigo_barras">Código de ticket:</label>
-                        <input type="text" id="codigo_barras" name="codigo_barras" required>
+                        <input type="text" id="codigo_barras" name="codigo_barras" required minlength="20">
                     </div>
                     
                     <div>
@@ -137,7 +132,6 @@
                         <select id="opcion1" name="opcion1">
                             <option value="Si">Si</option>
                             <option value="No">No</option>
-		            <option value="NA">NA</option>
                         </select>
                     </div>
 
@@ -151,8 +145,8 @@
                     </div>
 
                     <div>
-                        <label for="cantidad">En caso de PINHOLE, #Seccion del PINHOLE (Número):</label>
-                        <input type="number" id="cantidad" name="cantidad" required>
+                        <label for="cantidad">En caso de PINHOLE, #Seccion del PINHOLE (Número del 1 - 7):</label>
+                        <input type="number" id="cantidad" name="cantidad" required min="1" max="9" maxlength="1">
                     </div>
                     
                     <button type="submit">Enviar Datos</button>
@@ -182,22 +176,36 @@
         const mensajeExito = document.getElementById('mensaje-exito');
         const mensajeError = document.getElementById('mensaje-error');
 
-        // Referencias para la lógica de habilitar/deshabilitar
         const selectPinhole = document.getElementById('opcion1');
         const inputSeccion = document.getElementById('cantidad');
 
 
-        // --- 3. EVENT LISTENER PARA EL "LOGIN" ---
+        // --- 3. EVENT LISTENER PARA EL "LOGIN" (CON VALIDACIÓN) ---
         btnLogin.addEventListener('click', function(e) {
             e.preventDefault();
             
-            const numEmpleado = document.getElementById('num_empleado').value;
-            const estacion = document.getElementById('estacion_trabajo').value;
+            const numEmpleadoInput = document.getElementById('num_empleado');
+            const estacionInput = document.getElementById('estacion_trabajo');
             
-            if (numEmpleado === "" || estacion === "") {
-                alert("Por favor, ingresa el número de empleado y la estación.");
-                return;
+            const numEmpleado = numEmpleadoInput.value;
+            const estacion = estacionInput.value;
+            
+            // --- VALIDACIÓN DE LOGIN ---
+            // Regla 1: longitud de 'num_empleado' > 6
+            if (numEmpleado.length <= 6) {
+                alert("Debes de escanear tu gafete ⚠️.");
+                numEmpleadoInput.focus(); // Pone el foco en el campo erróneo
+                return; // Detiene la función
             }
+            
+            // Regla 2: longitud de 'estacion_trabajo' >= 10
+            if (estacion.length < 10) {
+                alert("Debes escanear el código de tu estación de trabajo ⚠️.");
+                estacionInput.focus();
+                return; // Detiene la función
+            }
+            // --- FIN VALIDACIÓN ---
+
             
             empleadoLogueado = numEmpleado;
             estacionLogueada = estacion;
@@ -210,9 +218,41 @@
             inputCodigoBarras.focus();
         });
 
-        // --- 4. EVENT LISTENER PARA EL ENVÍO DEL FORMULARIO ---
+        // --- 4. EVENT LISTENER PARA EL ENVÍO DEL FORMULARIO (CON VALIDACIÓN) ---
         formulario.addEventListener('submit', function(e) {
             e.preventDefault(); 
+            
+            // --- VALIDACIÓN DE FORMULARIO ---
+            const codigoBarras = inputCodigoBarras.value;
+            const cantidad = inputSeccion.value;
+            
+            // Regla 3: longitud de 'codigo_barras' >= 20
+            if (codigoBarras.length < 20) {
+                alert("Debes escanear el código de barras del ticket");
+                inputCodigoBarras.focus();
+                return; // Detiene el envío
+            }
+            
+            // Regla 4: Validar 'cantidad' SÓLO SI el campo está habilitado
+            if (!inputSeccion.disabled) {
+                const cantidadNum = parseInt(cantidad, 10); // Convertir a número
+                
+                // Regla 4a: longitud de 'cantidad' == 1
+                if (cantidad.length !== 1) {
+                    alert("La 'ubicación' (#Seccion) debe ser de 1 solo dígito.");
+                    inputSeccion.focus();
+                    return;
+                }
+                
+                // Regla 4b: 'cantidad' > 0 (1-9)
+                if (cantidadNum < 1 || cantidadNum > 9) {
+                    alert("La 'ubicación' (#Seccion) debe ser un número entre 1 y 7.");
+                    inputSeccion.focus();
+                    return;
+                }
+            }
+            // --- FIN VALIDACIÓN ---
+
             
             mensajeExito.style.display = 'none';
             mensajeError.style.display = 'none';
@@ -231,10 +271,7 @@
                 if (data.result === 'success') {
                     mensajeExito.style.display = 'block';
                     formulario.reset(); 
-                    
-                    // Asegurarse de re-habilitar el campo al resetear
-                    inputSeccion.disabled = false;
-
+                    inputSeccion.disabled = false; // Re-habilita al resetear
                     inputCodigoBarras.focus(); 
                 } else {
                     console.error('Error del script:', data.error); 
@@ -249,12 +286,10 @@
 
         // --- 5. Event listener para la lógica del PINHOLE ---
         selectPinhole.addEventListener('change', function() {
-            if (this.value === 'No' || this.value === "NA") {
-                // Si no hay Pinhole, deshabilita y limpia el campo de sección
+            if (this.value === 'No') {
                 inputSeccion.disabled = true;
                 inputSeccion.value = '';
             } else {
-                // Si hay Pinhole, habilita el campo
                 inputSeccion.disabled = false;
             }
         });
