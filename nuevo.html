@@ -67,7 +67,14 @@
             font-size: 16px;
             transition: background-color 0.3s ease;
         }
+        /* */
+        button:disabled {
+            background-color: #9ecbff; /* Un azul más claro */
+            cursor: not-allowed;
+        }
         button:hover { background-color: #0056b3; }
+        button:disabled:hover { background-color: #9ecbff; } /* Evita cambio de color al pasar el ratón */
+
         #mensaje-exito { color: #28a745; font-weight: bold; display: none; margin-top: 10px;}
         #mensaje-error { color: #dc3545; font-weight: bold; display: none; margin-top: 10px;}
         
@@ -150,7 +157,7 @@
                         <input type="number" id="cantidad" name="cantidad" required min="1" max="9" maxlength="1">
                     </div>
                     
-                    <button type="submit">Enviar Datos</button>
+                    <button type="submit" id="btn-enviar">Enviar Datos</button>
                 </form>
                 
                 <p id="mensaje-exito">¡Datos guardados! Listo para el siguiente escaneo.</p>
@@ -179,6 +186,9 @@
 
         const selectPinhole = document.getElementById('opcion1');
         const inputSeccion = document.getElementById('cantidad');
+        
+        // === CAMBIO: Referencia al nuevo botón ===
+        const btnEnviar = document.getElementById('btn-enviar');
 
 
         // --- 3. EVENT LISTENER PARA EL "LOGIN" (CON VALIDACIÓN) ---
@@ -187,35 +197,25 @@
             
             const numEmpleadoInput = document.getElementById('num_empleado');
             const estacionInput = document.getElementById('estacion_trabajo');
-            
             const numEmpleado = numEmpleadoInput.value;
             const estacion = estacionInput.value;
             
-            // --- VALIDACIÓN DE LOGIN ---
-            // Regla 1: longitud de 'num_empleado' > 6
             if (numEmpleado.length <= 6) {
                 alert("Debes de escanear tu gafete ⚠️.");
-                numEmpleadoInput.focus(); // Pone el foco en el campo erróneo
-                return; // Detiene la función
+                numEmpleadoInput.focus(); 
+                return;
             }
-            
-            // Regla 2: longitud de 'estacion_trabajo' >= 10
             if (estacion.length < 10) {
                 alert("Debes escanear el código de tu estación de trabajo ⚠️.");
                 estacionInput.focus();
-                return; // Detiene la función
+                return;
             }
-            // --- FIN VALIDACIÓN ---
-
             
             empleadoLogueado = numEmpleado;
             estacionLogueada = estacion;
-            
             infoUsuario.textContent = `${empleadoLogueado} @ ${estacionLogueada}`;
-            
             loginContainer.style.display = 'none';
             formularioContainer.style.display = 'block';
-            
             inputCodigoBarras.focus();
         });
 
@@ -223,45 +223,38 @@
         formulario.addEventListener('submit', function(e) {
             e.preventDefault(); 
             
-            // --- VALIDACIÓN DE FORMULARIO ---
             const codigoBarras = inputCodigoBarras.value;
             const cantidad = inputSeccion.value;
             
-            // Regla 3: longitud de 'codigo_barras' >= 20
             if (codigoBarras.length < 20) {
                 alert("Debes escanear el código de barras del ticket");
                 inputCodigoBarras.focus();
-                return; // Detiene el envío
+                return; 
             }
-            
-            // Regla 4: Validar 'cantidad' SÓLO SI el campo está habilitado
             if (!inputSeccion.disabled) {
-                const cantidadNum = parseInt(cantidad, 10); // Convertir a número
-                
-                // Regla 4a: longitud de 'cantidad' == 1
+                const cantidadNum = parseInt(cantidad, 10);
                 if (cantidad.length !== 1) {
                     alert("La 'ubicación' (#Seccion) debe ser de 1 solo dígito.");
                     inputSeccion.focus();
                     return;
                 }
-                
-                // Regla 4b: 'cantidad' > 0 (1-9)
                 if (cantidadNum < 1 || cantidadNum > 9) {
                     alert("La 'ubicación' (#Seccion) debe ser un número entre 1 y 7.");
                     inputSeccion.focus();
                     return;
                 }
             }
-            // --- FIN VALIDACIÓN ---
-
             
             mensajeExito.style.display = 'none';
             mensajeError.style.display = 'none';
             
             const formData = new FormData(this);
-            
             formData.append("numero_empleado", empleadoLogueado);
             formData.append("estacion_trabajo", estacionLogueada);
+            
+            // === CAMBIO: Deshabilitar botón antes de enviar ===
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = 'Enviando...';
             
             fetch(URL_SCRIPT, {
                 method: 'POST',
@@ -272,7 +265,7 @@
                 if (data.result === 'success') {
                     mensajeExito.style.display = 'block';
                     formulario.reset(); 
-                    inputSeccion.disabled = false; // Re-habilita al resetear
+                    inputSeccion.disabled = false;
                     inputCodigoBarras.focus(); 
                 } else {
                     console.error('Error del script:', data.error); 
@@ -282,6 +275,11 @@
             .catch(error => {
                 console.error('Error de Fetch:', error);
                 mensajeError.style.display = 'block';
+            })
+            .finally(() => {
+                // === CAMBIO: Volver a habilitar el botón (ya sea en éxito o error) ===
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = 'Enviar Datos';
             });
         });
 
