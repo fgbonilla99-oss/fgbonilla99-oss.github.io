@@ -153,7 +153,7 @@
                     <div id="retrabajo-fields">
                         
                         <div>
-                            <label for="motor_ticket">Motor ticket:</label>
+                            <label for="motor_ticket">Configuración de motor ticket:</label>
                             <select id="motor_ticket" name="motor_ticket">
                                 <option value="HZ">HZ</option>
                                 <option value="HZ+5">HZ+5</option>
@@ -174,7 +174,7 @@
                         </div>
                         
                         <div>
-                            <label for="motor_colocado">Motor colocado:</label>
+                            <label for="motor_colocado">Nueva configuración de motor:</label>
                             <select id="motor_colocado" name="motor_colocado">
                                 <option value="HZ">HZ</option>
                                 <option value="HZ+5">HZ+5</option>
@@ -197,7 +197,7 @@
 
                         <div id="otro-motor-field">
                             <label for="motor_otro">Especificar otro motor:</label>
-                            <input type="text" id="motor_otro" name="motor_otro">
+                            <input type="text" id="motor_otro" name="motor_otro" placeholder="Ejem. HZ+10">
                         </div>
 
                     </div>
@@ -248,12 +248,12 @@
             
             // Mantenemos las validaciones de login
             if (numEmpleado.length <= 6) {
-                alert("El 'Número de Empleado' debe tener más de 6 caracteres.");
+                alert("Debes de escanear tu gafete ⚠️.");
                 numEmpleadoInput.focus(); 
                 return;
             }
             if (estacion.length < 10) {
-                alert("La 'Estación de Trabajo' debe tener 10 o más caracteres.");
+                alert("Debes de escanear el código de tu estación ⚠️.");
                 estacionInput.focus();
                 return;
             }
@@ -341,8 +341,15 @@
             }
         });
 
+        formulario.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && event.target.nodeName === 'INPUT') {
+                event.preventDefault();
+            }
+        });
+
     </script>
 
 </body>
 
 </html>
+
