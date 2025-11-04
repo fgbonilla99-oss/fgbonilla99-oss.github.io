@@ -140,6 +140,7 @@
                         <select id="opcion1" name="opcion1">
                             <option value="Si">Si</option>
                             <option value="No">No</option>
+                            <option value="NA">N/A</option>
                         </select>
                     </div>
 
@@ -285,7 +286,7 @@
 
         // --- 5. Event listener para la lógica del PINHOLE ---
         selectPinhole.addEventListener('change', function() {
-            if (this.value === 'No') {
+            if (this.value === 'No' || this.value === 'N/A') {
                 inputSeccion.disabled = true;
                 inputSeccion.value = '';
             } else {
@@ -297,5 +298,6 @@
 
 </body>
 </html>
+
 
 
