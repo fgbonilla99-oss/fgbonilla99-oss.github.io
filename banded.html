@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formulario de Retrabajo</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
+            margin: 0;
+            background-color: #f4f4f4; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .main-layout {
+            display: flex;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 900px;
+            width: 95%;
+        }
+        .column {
+            padding: 30px;
+            box-sizing: border-box;
+            flex: 1;
+        }
+        .column.image-column {
+            background-color: #f0f0f0; /* Fondo gris claro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+        .column.image-column img {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+            object-fit: cover;
+            border-radius: 8px 0 0 8px;
+        }
+
+        h2, h3 { color: #333; margin-top: 0; }
+        div { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input:disabled {
+            background-color: #eee;
+            cursor: not-allowed;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:disabled {
+            background-color: #9ecbff;
+            cursor: not-allowed;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled:hover { background-color: #9ecbff; }
+
+        #mensaje-exito { color: #28a745; font-weight: bold; display: none; margin-top: 10px;}
+        #mensaje-error { color: #dc3545; font-weight: bold; display: none; margin-top: 10px;}
+        
+        #formulario-container { display: none; }
+        #info-usuario { color:#007bff; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+
+        /* --- NUEVO: Oculta los campos condicionales por defecto --- */
+        #retrabajo-fields {
+            display: none;
+            padding-left: 15px;
+            border-left: 3px solid #007bff;
+            margin-top: 20px;
+        }
+        #otro-motor-field {
+            display: none;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+                max-width: 100%;
+                width: 100%;
+                border-radius: 0;
+            }
+            .column { padding: 20px; }
+            .column.image-column img {
+                height: 200px;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-layout">
+        
+        <div class="column image-column">
+            <img src="img2.jpg" alt="Imagen de Taller">
+        </div>
+
+        <div class="column">
+            
+            <div id="login-container">
+                <h2>Inicio de Sesión</h2>
+                <div>
+                    <label for="num_empleado">Número de Empleado:</label>
+                    <input type="text" id="num_empleado" required minlength="7">
+                </div>
+                <div>
+                    <label for="estacion_trabajo">Estación de Trabajo:</label>
+                    <input type="text" id="estacion_trabajo" required minlength="10">
+                </div>
+                <button id="btn-login">Ingresar</button>
+            </div>
+
+            <div id="formulario-container">
+                
+                <h3>Usuario: <span id="info-usuario"></span></h3>
+                <hr>
+
+                <form id="miFormulario">
+                    
+                    <div>
+                        <label for="codigo_ticket">Código del ticket:</label>
+                        <input type="text" id="codigo_ticket" name="codigo_ticket" required>
+                    </div>
+                    
+                    <div>
+                        <label for="estatus">Estatus:</label>
+                        <select id="estatus" name="estatus">
+                            <option value="Ok">Ok</option>
+                            <option value="Retrabajo">Retrabajo</option>
+                        </select>
+                    </div>
+
+                    <div id="retrabajo-fields">
+                        
+                        <div>
+                            <label for="motor_ticket">Motor ticket:</label>
+                            <select id="motor_ticket" name="motor_ticket">
+                                <option value="HZ">HZ</option>
+                                <option value="HZ+5">HZ+5</option>
+                                <option value="AZ+AZ">AZ+AZ</option>
+                                <option value="BZ">BZ</option>
+                                <option value="AZ+HZ">AZ+HZ</option>
+                                <option value="2HZ">2HZ</option>
+                                <option value="HZ+BZ">HZ+BZ</option>
+                                <option value="2BZ">2BZ</option>
+                                <option value="2HZ+BZ">2HZ+BZ</option>
+                                <option value="2BZ+HZ">2BZ+HZ</option>
+                                <option value="3BZ">3BZ</option>
+                                <option value="3BZ+AZ">3BZ+AZ</option>
+                                <option value="4BZ">4BZ</option>
+                                <option value="AZ">AZ</option>
+                                <option value="AZ+7">AZ+7</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="motor_colocado">Motor colocado:</label>
+                            <select id="motor_colocado" name="motor_colocado">
+                                <option value="HZ">HZ</option>
+                                <option value="HZ+5">HZ+5</option>
+                                <option value="AZ+AZ">AZ+AZ</option>
+                                <option value="BZ">BZ</option>
+                                <option value="AZ+HZ">AZ+HZ</option>
+                                <option value="2HZ">2HZ</option>
+                                <option value="HZ+BZ">HZ+BZ</option>
+                                <option value="2BZ">2BZ</option>
+                                <option value="2HZ+BZ">2HZ+BZ</option>
+                                <option value="2BZ+HZ">2BZ+HZ</option>
+                                <option value="3BZ">3BZ</option>
+                                <option value="3BZ+AZ">3BZ+AZ</option>
+                                <option value="4BZ">4BZ</option>
+                                <option value="AZ">AZ</option>
+                                <option value="AZ+7">AZ+7</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div id="otro-motor-field">
+                            <label for="motor_otro">Especificar otro motor:</label>
+                            <input type="text" id="motor_otro" name="motor_otro">
+                        </div>
+
+                    </div>
+                    
+                    <button type="submit" id="btn-enviar">Enviar Datos</button>
+                </form>
+                
+                <p id="mensaje-exito">¡Datos guardados! Listo para el siguiente ticket.</p>
+                <p id="mensaje-error">Hubo un error al enviar. Intenta de nuevo.</p>
+            </div>
+        </div> 
+    </div> 
+
+    <script>
+        // --- 1. CONFIGURACIÓN ---
+        // --- ¡¡¡IMPORTANTE!!! Pega tu NUEVA URL de implementación aquí ---
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwY2Rosnd2TBeSUQM1BIWFZ-zBw5DB-j2bzrU3v5D9o2mvJR5x23SHrEM-QfywQyP6tKQ/exec";
+
+        let empleadoLogueado = "";
+        let estacionLogueada = "";
+
+        // --- 2. REFERENCIAS A ELEMENTOS DEL DOM ---
+        const loginContainer = document.getElementById('login-container');
+        const formularioContainer = document.getElementById('formulario-container');
+        const btnLogin = document.getElementById('btn-login');
+        const infoUsuario = document.getElementById('info-usuario');
+        
+        const formulario = document.getElementById('miFormulario');
+        const mensajeExito = document.getElementById('mensaje-exito');
+        const mensajeError = document.getElementById('mensaje-error');
+        const btnEnviar = document.getElementById('btn-enviar');
+
+        // --- NUEVO: Referencias para la lógica condicional ---
+        const selectEstatus = document.getElementById('estatus');
+        const retrabajoFields = document.getElementById('retrabajo-fields');
+        const selectMotorColocado = document.getElementById('motor_colocado');
+        const otroMotorField = document.getElementById('otro-motor-field');
+
+
+        // --- 3. EVENT LISTENER PARA EL "LOGIN" (Con validación) ---
+        btnLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const numEmpleadoInput = document.getElementById('num_empleado');
+            const estacionInput = document.getElementById('estacion_trabajo');
+            const numEmpleado = numEmpleadoInput.value;
+            const estacion = estacionInput.value;
+            
+            // Mantenemos las validaciones de login
+            if (numEmpleado.length <= 6) {
+                alert("El 'Número de Empleado' debe tener más de 6 caracteres.");
+                numEmpleadoInput.focus(); 
+                return;
+            }
+            if (estacion.length < 10) {
+                alert("La 'Estación de Trabajo' debe tener 10 o más caracteres.");
+                estacionInput.focus();
+                return;
+            }
+            
+            empleadoLogueado = numEmpleado;
+            estacionLogueada = estacion;
+            infoUsuario.textContent = `${empleadoLogueado} @ ${estacionLogueada}`;
+            loginContainer.style.display = 'none';
+            formularioContainer.style.display = 'block';
+            document.getElementById('codigo_ticket').focus(); // Foco en el primer campo
+        });
+
+        // --- 4. EVENT LISTENER PARA EL ENVÍO DEL FORMULARIO ---
+        formulario.addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            
+            // Validación simple de que el ticket no esté vacío
+            const codigoTicketInput = document.getElementById('codigo_ticket');
+            if (codigoTicketInput.value.trim() === "") {
+                 alert("Por favor, ingresa el 'Código del ticket'.");
+                 codigoTicketInput.focus();
+                 return;
+            }
+            
+            mensajeExito.style.display = 'none';
+            mensajeError.style.display = 'none';
+            
+            const formData = new FormData(this);
+            formData.append("numero_empleado", empleadoLogueado);
+            formData.append("estacion_trabajo", estacionLogueada);
+            
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = 'Enviando...';
+            
+            fetch(URL_SCRIPT, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    mensajeExito.style.display = 'block';
+                    formulario.reset(); 
+                    
+                    // --- NUEVO: Ocultar campos condicionales al resetear ---
+                    retrabajoFields.style.display = 'none';
+                    otroMotorField.style.display = 'none';
+                    
+                    document.getElementById('codigo_ticket').focus(); // Pone el cursor de nuevo en el ticket
+                } else {
+                    console.error('Error del script:', data.error); 
+                    mensajeError.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error de Fetch:', error);
+                mensajeError.style.display = 'block';
+            })
+            .finally(() => {
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = 'Enviar Datos';
+            });
+        });
+
+        // --- 5. NUEVO: Event listeners para lógica condicional ---
+
+        // Muestra/oculta el bloque de "Retrabajo"
+        selectEstatus.addEventListener('change', function() {
+            if (this.value === 'Retrabajo') {
+                retrabajoFields.style.display = 'block';
+            } else {
+                retrabajoFields.style.display = 'none';
+                // Si cambiamos a "Ok", también ocultamos el campo "Otro"
+                otroMotorField.style.display = 'none';
+            }
+        });
+
+        // Muestra/oculta el campo "Otro"
+        selectMotorColocado.addEventListener('change', function() {
+            if (this.value === 'Otro') {
+                otroMotorField.style.display = 'block';
+                document.getElementById('motor_otro').focus(); // Foco en el nuevo campo
+            } else {
+                otroMotorField.style.display = 'none';
+            }
+        });
+
+    </script>
+
+</body>
+</html>
