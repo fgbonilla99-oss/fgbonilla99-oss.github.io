@@ -27,7 +27,7 @@
             flex: 1;
         }
         .column.image-column {
-            background-color: #f0f0f0; /* Fondo gris claro */
+            background-color: #f0f0f0; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -80,7 +80,7 @@
         #info-usuario { color:#007bff; }
         hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
 
-        /* --- NUEVO: Oculta los campos condicionales por defecto --- */
+        /* Oculta los campos condicionales por defecto */
         #retrabajo-fields {
             display: none;
             padding-left: 15px;
@@ -153,6 +153,15 @@
                     <div id="retrabajo-fields">
                         
                         <div>
+                            <label for="tipo_problema">Tipo de problema:</label>
+                            <select id="tipo_problema" name="tipo_problema">
+                                <option value="Se Baja">Se Baja</option>
+                                <option value="Se Sube">Se Sube</option>
+                                <option value="No Opera">No Opera</option>
+                                <option value="Sube Forzado">Sube Forzado</option>
+                            </select>
+                        </div>
+                        <div>
                             <label for="motor_ticket">Configuración de motor ticket:</label>
                             <select id="motor_ticket" name="motor_ticket">
                                 <option value="HZ">HZ</option>
@@ -213,8 +222,8 @@
 
     <script>
         // --- 1. CONFIGURACIÓN ---
-        // --- ¡¡¡IMPORTANTE!!! Pega tu NUEVA URL de implementación aquí ---
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwY2Rosnd2TBeSUQM1BIWFZ-zBw5DB-j2bzrU3v5D9o2mvJR5x23SHrEM-QfywQyP6tKQ/exec";
+        // --- ¡¡¡IMPORTANTE!!! Si cambiaste el script, actualiza la URL aquí ---
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwx7vP0paetmNz2zT7-NCgiD5a-28v7J8SF3MfwYDX2nR1-NjKNob4hG-rX01JVHyXFlw/exec";
 
         let empleadoLogueado = "";
         let estacionLogueada = "";
@@ -230,14 +239,13 @@
         const mensajeError = document.getElementById('mensaje-error');
         const btnEnviar = document.getElementById('btn-enviar');
 
-        // --- NUEVO: Referencias para la lógica condicional ---
         const selectEstatus = document.getElementById('estatus');
         const retrabajoFields = document.getElementById('retrabajo-fields');
         const selectMotorColocado = document.getElementById('motor_colocado');
         const otroMotorField = document.getElementById('otro-motor-field');
 
 
-        // --- 3. EVENT LISTENER PARA EL "LOGIN" (Con validación) ---
+        // --- 3. EVENT LISTENER PARA EL "LOGIN" ---
         btnLogin.addEventListener('click', function(e) {
             e.preventDefault();
             
@@ -246,7 +254,6 @@
             const numEmpleado = numEmpleadoInput.value;
             const estacion = estacionInput.value;
             
-            // Mantenemos las validaciones de login
             if (numEmpleado.length <= 6) {
                 alert("Debes de escanear tu gafete ⚠️.");
                 numEmpleadoInput.focus(); 
@@ -263,14 +270,13 @@
             infoUsuario.textContent = `${empleadoLogueado} @ ${estacionLogueada}`;
             loginContainer.style.display = 'none';
             formularioContainer.style.display = 'block';
-            document.getElementById('codigo_ticket').focus(); // Foco en el primer campo
+            document.getElementById('codigo_ticket').focus();
         });
 
         // --- 4. EVENT LISTENER PARA EL ENVÍO DEL FORMULARIO ---
         formulario.addEventListener('submit', function(e) {
             e.preventDefault(); 
             
-            // Validación simple de que el ticket no esté vacío
             const codigoTicketInput = document.getElementById('codigo_ticket');
             if (codigoTicketInput.value.trim() === "") {
                  alert("Por favor, ingresa el 'Código del ticket'.");
@@ -298,11 +304,10 @@
                     mensajeExito.style.display = 'block';
                     formulario.reset(); 
                     
-                    // --- NUEVO: Ocultar campos condicionales al resetear ---
                     retrabajoFields.style.display = 'none';
                     otroMotorField.style.display = 'none';
                     
-                    document.getElementById('codigo_ticket').focus(); // Pone el cursor de nuevo en el ticket
+                    document.getElementById('codigo_ticket').focus(); 
                 } else {
                     console.error('Error del script:', data.error); 
                     mensajeError.style.display = 'block';
@@ -318,24 +323,20 @@
             });
         });
 
-        // --- 5. NUEVO: Event listeners para lógica condicional ---
-
-        // Muestra/oculta el bloque de "Retrabajo"
+        // --- 5. LÓGICA CONDICIONAL ---
         selectEstatus.addEventListener('change', function() {
             if (this.value === 'Retrabajo') {
                 retrabajoFields.style.display = 'block';
             } else {
                 retrabajoFields.style.display = 'none';
-                // Si cambiamos a "Ok", también ocultamos el campo "Otro"
                 otroMotorField.style.display = 'none';
             }
         });
 
-        // Muestra/oculta el campo "Otro"
         selectMotorColocado.addEventListener('change', function() {
             if (this.value === 'Otro') {
                 otroMotorField.style.display = 'block';
-                document.getElementById('motor_otro').focus(); // Foco en el nuevo campo
+                document.getElementById('motor_otro').focus();
             } else {
                 otroMotorField.style.display = 'none';
             }
@@ -350,6 +351,4 @@
     </script>
 
 </body>
-
 </html>
-
