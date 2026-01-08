@@ -112,7 +112,7 @@
     <div class="main-layout">
         
         <div class="column image-column">
-            <img src="https://raw.githubusercontent.com/fgbonilla99-oss/fgbonilla99-oss.github.io/refs/heads/main/img1.jpg" alt="Imagen de Taller">
+            <img src="img1.jpg" alt="Imagen de Taller">
         </div>
 
         <div class="column">
@@ -229,8 +229,8 @@
                             </select>
                         </div>
                         <div id="otro-motor-field">
-                            <label for="motor_otro">Especificar otro motor:</label>
-                            <input type="text" id="motor_otro" name="motor_otro" placeholder="Ejem. HZ+10">
+                            <label for="motor_otro">Especifica las vueltas:</label>
+                            <input type="number" id="motor_otro" name="motor_otro" placeholder="Min. 1 vuelta" min="1" max="30">
                         </div>
 
                     </div>
@@ -245,14 +245,13 @@
     </div> 
 
     <script>
-        // --- 1. CONFIGURACIÓN ---
-        // --- ¡¡¡IMPORTANTE!!! Si cambiaste el script, actualiza la URL aquí ---
+        
         const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxNGx28FVKLWWDHKRTa5a2zEV2On3g5u39mXu8D3evJUpSkXOiYIgDrPtZuTjgcAyTx9g/exec";
 
         let empleadoLogueado = "";
         let estacionLogueada = "";
 
-        // --- 2. REFERENCIAS A ELEMENTOS DEL DOM ---
+        
         const loginContainer = document.getElementById('login-container');
         const formularioContainer = document.getElementById('formulario-container');
         const btnLogin = document.getElementById('btn-login');
@@ -269,7 +268,7 @@
         const otroMotorField = document.getElementById('otro-motor-field');
 
 
-        // --- 3. EVENT LISTENER PARA EL "LOGIN" ---
+        
         btnLogin.addEventListener('click', function(e) {
             e.preventDefault();
             
@@ -299,7 +298,7 @@
             document.getElementById('codigo_ticket').focus();
         });
 
-        // --- 4. EVENT LISTENER PARA EL ENVÍO DEL FORMULARIO ---
+        
         formulario.addEventListener('submit', function(e) {
             e.preventDefault(); 
             
@@ -349,24 +348,18 @@
             });
         });
 
-        // --- 5. LÓGICA CONDICIONAL ---
+        
         selectEstatus.addEventListener('change', function() {
             if (this.value === 'Retrabajo') {
                 retrabajoFields.style.display = 'block';
+                otroMotorField.style.display = 'block';
+                document.getElementById('retrabajo-fields').focus();
             } else {
                 retrabajoFields.style.display = 'none';
                 otroMotorField.style.display = 'none';
             }
         });
 
-        selectMotorColocado.addEventListener('change', function() {
-            if (this.value === 'Otro') {
-                otroMotorField.style.display = 'block';
-                document.getElementById('motor_otro').focus();
-            } else {
-                otroMotorField.style.display = 'none';
-            }
-        });
 
         formulario.addEventListener('keydown', function(event) {
             if (event.key === 'Enter' && event.target.nodeName === 'INPUT') {
@@ -375,7 +368,6 @@
         });
 
     </script>
-
+    
 </body>
-
 </html>
