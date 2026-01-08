@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contención AGL - Retail</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
+            margin: 0;
+            background-color: #4b5d67; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .main-layout {
+            display: flex;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 900px;
+            width: 95%;
+        }
+        .column {
+            padding: 30px;
+            box-sizing: border-box;
+            flex: 1;
+        }
+        .column.image-column {
+            background-color: #fff; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+        .column.image-column img {
+            max-width: 95%;
+            max-height: 95%;
+            display: block;
+            object-fit: cover;
+            border-radius: 8px 0 0 8px;
+        }
+
+        h2, h3 { color: #333; margin-top: 0; }
+        div { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input:disabled {
+            background-color: #eee;
+            cursor: not-allowed;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:disabled {
+            background-color: #9ecbff;
+            cursor: not-allowed;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled:hover { background-color: #9ecbff; }
+
+        #mensaje-exito { color: #28a745; font-weight: bold; display: none; margin-top: 10px;}
+        #mensaje-error { color: #dc3545; font-weight: bold; display: none; margin-top: 10px;}
+        
+        #formulario-container { display: none; }
+        #info-usuario { color:#007bff; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+
+        /* Oculta los campos condicionales por defecto */
+        #retrabajo-fields {
+            display: none;
+            padding-left: 15px;
+            border-left: 3px solid #007bff;
+            margin-top: 20px;
+        }
+        #otro-motor-field {
+            display: none;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+                max-width: 100%;
+                width: 100%;
+                border-radius: 0;
+            }
+            .column { padding: 20px; }
+            .column.image-column img {
+                height: 200px;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-layout">
+        
+        <div class="column image-column">
+            <img src="img1.jpg" alt="Imagen de Taller">
+        </div>
+
+        <div class="column">
+            
+            <div id="login-container">
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <h2>Contención AGL | Roller Retail</h2>
+                <div>
+                    <label for="num_empleado">Número de Empleado:</label>
+                    <input type="text" id="num_empleado" required minlength="7">
+                </div>
+                <div>
+                    <label for="estacion_trabajo">Estación de Trabajo:</label>
+                    <input type="text" id="estacion_trabajo" required minlength="10">
+                </div>
+                <button id="btn-login">Ingresar</button>
+            </div>
+
+            <div id="formulario-container">
+                
+                <h3>Usuario: <span id="info-usuario"></span></h3>
+                <hr>
+
+                <form id="miFormulario">
+                    
+                    <div>
+                        <label for="codigo_ticket">Código del ticket:</label>
+                        <input type="text" id="codigo_ticket" name="codigo_ticket" required>
+                    </div>
+                    
+                    <div>
+                        <label for="estatus">Estatus:</label>
+                        <select id="estatus" name="estatus">
+                            <option value="Ok">Ok</option>
+                            <option value="Retrabajo">Retrabajo</option>
+                        </select>
+                    </div>
+
+                    <div id="retrabajo-fields">
+                        
+                        <div>
+                            <label for="tipo_problema">Tipo de problema:</label>
+                            <select id="tipo_problema" name="tipo_problema">
+                                <option value="Se Baja">Se Baja</option>
+                                <option value="Se Sube">Se Sube</option>
+                                <option value="No Opera">No Opera</option>
+                                <option value="Sube Forzado">Sube Forzado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="motor_ticket">Configuración de motor ticket:</label>
+                            <select id="motor_ticket" name="motor_ticket">  
+                                <option value="1043755">1043755</option>
+                                <option value="1043756">1043756</option>
+                                <option value="1043757">1043757</option>
+                                <option value="1043758">1043758</option>
+                                <option value="1043759">1043759</option>
+                                <option value="1043850">1043850</option>
+                                <option value="1043851">1043851</option>
+                                <option value="1043852">1043852</option>
+                                <option value="1043853">1043853</option>
+                                <option value="1043854">1043854</option>
+                                <option value="1043855">1043855</option>
+                                <option value="1043856">1043856</option>
+                                <option value="1043725">1043725</option>
+                                <option value="1043726">1043726</option>
+                                <option value="1043727">1043727</option>
+                                <option value="1043728">1043728</option>
+                                <option value="1043729">1043729</option>
+                                <option value="1043750">1043750</option>
+                                <option value="1043751">1043751</option>
+                                <option value="1043752">1043752</option>
+                                <option value="1050881">1050881</option>
+                                <option value="1050882">1050882</option>
+                                <option value="1050883">1050883</option>
+                                <option value="1050884">1050884</option>
+                                <option value="1050885">1050885</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="motor_colocado">Nueva configuración de motor:</label>
+                            <select id="motor_colocado" name="motor_colocado">
+                                <option value="1043755">1043755</option>
+                                <option value="1043756">1043756</option>
+                                <option value="1043757">1043757</option>
+                                <option value="1043758">1043758</option>
+                                <option value="1043759">1043759</option>
+                                <option value="1043850">1043850</option>
+                                <option value="1043851">1043851</option>
+                                <option value="1043852">1043852</option>
+                                <option value="1043853">1043853</option>
+                                <option value="1043854">1043854</option>
+                                <option value="1043855">1043855</option>
+                                <option value="1043856">1043856</option>
+                                <option value="1043725">1043725</option>
+                                <option value="1043726">1043726</option>
+                                <option value="1043727">1043727</option>
+                                <option value="1043728">1043728</option>
+                                <option value="1043729">1043729</option>
+                                <option value="1043750">1043750</option>
+                                <option value="1043751">1043751</option>
+                                <option value="1043752">1043752</option>
+                                <option value="1050881">1050881</option>
+                                <option value="1050882">1050882</option>
+                                <option value="1050883">1050883</option>
+                                <option value="1050884">1050884</option>
+                                <option value="1050885">1050885</option>
+                            </select>
+                        </div>
+                        <div id="otro-motor-field">
+                            <label for="motor_otro">Especificar otro motor:</label>
+                            <input type="text" id="motor_otro" name="motor_otro" placeholder="Ejem. HZ+10">
+                        </div>
+
+                    </div>
+                    
+                    <button type="submit" id="btn-enviar">Enviar Datos</button>
+                </form>
+                
+                <p id="mensaje-exito">¡Datos guardados! Listo para el siguiente ticket.</p>
+                <p id="mensaje-error">Hubo un error al enviar. Intenta de nuevo.</p>
+            </div>
+        </div> 
+    </div> 
+
+    <script>
+        // --- 1. CONFIGURACIÓN ---
+        // --- ¡¡¡IMPORTANTE!!! Si cambiaste el script, actualiza la URL aquí ---
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxNGx28FVKLWWDHKRTa5a2zEV2On3g5u39mXu8D3evJUpSkXOiYIgDrPtZuTjgcAyTx9g/exec";
+
+        let empleadoLogueado = "";
+        let estacionLogueada = "";
+
+        // --- 2. REFERENCIAS A ELEMENTOS DEL DOM ---
+        const loginContainer = document.getElementById('login-container');
+        const formularioContainer = document.getElementById('formulario-container');
+        const btnLogin = document.getElementById('btn-login');
+        const infoUsuario = document.getElementById('info-usuario');
+        
+        const formulario = document.getElementById('miFormulario');
+        const mensajeExito = document.getElementById('mensaje-exito');
+        const mensajeError = document.getElementById('mensaje-error');
+        const btnEnviar = document.getElementById('btn-enviar');
+
+        const selectEstatus = document.getElementById('estatus');
+        const retrabajoFields = document.getElementById('retrabajo-fields');
+        const selectMotorColocado = document.getElementById('motor_colocado');
+        const otroMotorField = document.getElementById('otro-motor-field');
+
+
+        // --- 3. EVENT LISTENER PARA EL "LOGIN" ---
+        btnLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const numEmpleadoInput = document.getElementById('num_empleado');
+            const estacionInput = document.getElementById('estacion_trabajo');
+            const numEmpleado = numEmpleadoInput.value;
+            const estacion = estacionInput.value;
+
+            const validateCard = (numEmpleado[6] === 'A' || numEmpleado[6] === 'a') && numEmpleado.length === 7
+            
+            if (!validateCard) {
+                alert("Debes de escanear tu gafete ⚠️.");
+                numEmpleadoInput.focus(); 
+                return;
+            }
+            if (estacion.length < 10) {
+                alert("Debes de escanear el código de tu estación ⚠️.");
+                estacionInput.focus();
+                return;
+            }
+            
+            empleadoLogueado = numEmpleado;
+            estacionLogueada = estacion;
+            infoUsuario.textContent = `${empleadoLogueado.slice(1,6)} @ ${estacionLogueada}`;
+            loginContainer.style.display = 'none';
+            formularioContainer.style.display = 'block';
+            document.getElementById('codigo_ticket').focus();
+        });
+
+        // --- 4. EVENT LISTENER PARA EL ENVÍO DEL FORMULARIO ---
+        formulario.addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            
+            const codigoTicketInput = document.getElementById('codigo_ticket');
+            if (codigoTicketInput.value.trim() === "" || codigoTicketInput.value <17) {
+                alert("Revisa el 'Código del ticket'.");
+                codigoTicketInput.focus();
+                return;
+            }
+            
+            mensajeExito.style.display = 'none';
+            mensajeError.style.display = 'none';
+            
+            const formData = new FormData(this);
+            formData.append("numero_empleado", empleadoLogueado);
+            formData.append("estacion_trabajo", estacionLogueada);
+            
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = 'Enviando...';
+            
+            fetch(URL_SCRIPT, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    mensajeExito.style.display = 'block';
+                    formulario.reset(); 
+                    
+                    retrabajoFields.style.display = 'none';
+                    otroMotorField.style.display = 'none';
+                    
+                    document.getElementById('codigo_ticket').focus(); 
+                } else {
+                    console.error('Error del script:', data.error); 
+                    mensajeError.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error de Fetch:', error);
+                mensajeError.style.display = 'block';
+            })
+            .finally(() => {
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = 'Enviar Datos';
+            });
+        });
+
+        // --- 5. LÓGICA CONDICIONAL ---
+        selectEstatus.addEventListener('change', function() {
+            if (this.value === 'Retrabajo') {
+                retrabajoFields.style.display = 'block';
+            } else {
+                retrabajoFields.style.display = 'none';
+                otroMotorField.style.display = 'none';
+            }
+        });
+
+        selectMotorColocado.addEventListener('change', function() {
+            if (this.value === 'Otro') {
+                otroMotorField.style.display = 'block';
+                document.getElementById('motor_otro').focus();
+            } else {
+                otroMotorField.style.display = 'none';
+            }
+        });
+
+        formulario.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && event.target.nodeName === 'INPUT') {
+                event.preventDefault();
+            }
+        });
+
+    </script>
+
+</body>
+</html>
