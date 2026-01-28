@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quality Control System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1; --primary-dark: #4f46e5; --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --text-main: #1e293b; --text-muted: #64748b; --glass: rgba(255, 255, 255, 0.8);
+      --success: #10b981; --danger: #ef4444; --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .mensaje-exito {
+      margin-top: 10px;
+      color: #10b981;
+      display: none;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; padding: 20px;
+    }
+
+    #toast {
+      position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+      background: var(--success); color: white; padding: 16px 32px;
+      border-radius: 100px; font-weight: 700; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+      z-index: 3000; transition: top 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      display: flex; align-items: center; gap: 10px;
+    }
+    #toast.show { top: 30px; }
+
+    /* --- Container & Card --- */
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      padding: 3rem 2.5rem;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      width: 100%; max-width: 480px;
+      position: relative; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center; color: var(--text-main); letter-spacing: -0.025em; }
+    p.subtitle { text-align: center; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; }
+
+    /* --- Info Bar --- */
+    .info-bar {
+      background: #eff6ff; color: #1d4ed8; padding: 14px; border-radius: 16px;
+      font-size: 0.85rem; margin-bottom: 1.5rem; border: 1px solid #dbeafe;
+      display: flex; justify-content: space-between; align-items: center; font-weight: 600;
+    }
+
+    /* --- Inputs Estilizados --- */
+    .input-group { margin-bottom: 1.5rem; position: relative; }
+    .input-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    input[type="text"] {
+      width: 100%; padding: 16px; background: #ffffff;
+      border: 2px solid #e2e8f0; border-radius: 14px;
+      font-size: 1rem; transition: all 0.2s; outline: none; font-family: inherit;
+    }
+
+    input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); transform: translateY(-1px); }
+
+    /* --- Modal & Sliders --- */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6); display: none;
+      justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px);
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: #ffffff; padding: 2.5rem; border-radius: 30px;
+      width: 90%; max-width: 420px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .param-box { background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 1rem; border: 1px solid #f1f5f9; }
+    .param-label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 8px; }
+    .param-val { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+
+    /* Estilo del Slider */
+    .slider-container { margin-top: 15px; }
+    input[type="range"] { -webkit-appearance: none; width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; outline: none; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .slider-val-badge { display: inline-block; margin-top: 10px; background: var(--primary); color: #fff; padding: 4px 12px; border-radius: 10px; font-weight: 700; font-size: 1.1rem; }
+
+    /* --- Botones --- */
+    .btn-group { display: flex; gap: 12px; margin-top: 2rem; }
+    button {
+      flex: 1; padding: 16px; border: none; border-radius: 14px;
+      cursor: pointer; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;
+      transition: all 0.2s; font-family: inherit;
+    }
+    .btn-ok { background: var(--primary); color: white; }
+    .btn-ok:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4); }
+    .btn-no { background: #f1f5f9; color: var(--text-muted); }
+    .btn-no:hover { background: #e2e8f0; color: var(--danger); }
+
+    /* --- Utilities --- */
+    .hidden { display: none !important; }
+    .loader { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; border-radius: 24px; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div id="toast"><span>✅</span> REGISTRO GUARDADO</div>
+
+<div class="card" id="main-container">
+  <div id="loading" class="loader"><div class="spinner"></div><span>Procesando...</span></div>
+
+  <div id="step-1">
+    <h2>Contención de sellado</h2>
+    <p class="subtitle">Ingresa los siguientes datos para comenzar</p>
+    <div class="input-group">
+      <label>Gafete de Empleado</label>
+      <input type="text" id="emp-id" placeholder="Escanea tu código" autofocus autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label>Estación de Trabajo</label>
+      <input type="text" id="station-id" placeholder="Escanea la estación" autocomplete="off">
+    </div>
+  </div>
+
+  <div id="step-2" class="hidden">
+    <h2>Registro</h2>
+    <p class="subtitle">Escanea los datos de la pieza</p>
+    <div class="info-bar">
+      <span id="display-user"></span>
+      <span id="display-station"></span>
+    </div>
+    <div class="input-group">
+      <label>Código de Ticket</label>
+      <input type="text" id="ticket-id" placeholder="Escanea el ticket" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label>Número de Parte (PCN)</label>
+      <input type="text" id="pcn-id" placeholder="Escanea el PCN" autocomplete="off">
+      <br>
+      <p class="mensaje-exito">Registro guardado correctamente ✅</p>
+    </div>
+  </div>
+</div>
+
+<div id="modal" class="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title" style="font-weight: 800; margin-bottom: 15px;">Validación</h3>
+    <p id="manual-msg" class="hidden" style="color:var(--danger); font-size: 0.85rem; font-weight:700; margin-bottom:15px;">⚠️ DATO NO ENCONTRADO EN SISTEMA</p>
+    
+    <div class="param-box">
+      <span class="param-label">Tiempo (s)</span>
+      <span id="txt-time" class="param-val">--</span>
+      <div id="cont-time" class="hidden slider-container">
+        <input type="range" id="sl-time" min="2" max="6" step="0.1" value="4" oninput="syncVal('time')">
+        <div class="slider-val-badge"><span id="val-sl-time">4.0</span>s</div>
+      </div>
+    </div>
+
+    <div class="param-box">
+      <span class="param-label">Temperatura (°C)</span>
+      <span id="txt-temp" class="param-val">--</span>
+      <div id="cont-temp" class="hidden slider-container">
+        <input type="range" id="sl-temp" min="100" max="300" step="10" value="200" oninput="syncVal('temp')">
+        <div class="slider-val-badge"><span id="val-sl-temp">200</span>°C</div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button id="btn-cancel" class="btn-no" onclick="handleRechazar()">Editar</button>
+      <button class="btn-ok" onclick="finalizarRegistro('ACEPTADO')">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  // CONFIGURACIÓN: Reemplaza con tu URL de Google
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyB36LaPZLUFc_hpc3MlOl5ygK5pAqxSG8jeiRusnK27WDY_g8mhZq3Zwj4mXgZBAiEzg/exec";
+
+  let session = { empleado: '', estacion: '', pcn: '', time: '', temp: '' };
+  let isManual = false;
+
+  // Listeners de Escáner
+  document.getElementById('emp-id').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('station-id').focus(); });
+  document.getElementById('station-id').addEventListener('keypress', e => { if(e.key==='Enter') doLogin(); });
+  document.getElementById('ticket-id').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('pcn-id').focus(); });
+  document.getElementById('pcn-id').addEventListener('keypress', e => { if(e.key==='Enter') doBuscar(); });
+
+  function doLogin() {
+    session.empleado = document.getElementById('emp-id').value.trim();
+    session.estacion = document.getElementById('station-id').value.trim();
+
+    let empleadoVal = session.empleado.length === 7 && (session.empleado[0] === '0' && session.empleado[6].toUpperCase() === 'A');
+    let estacionVal = session.estacion.slice(0,3).toUpperCase() === 'ROL';
+
+
+    if(empleadoVal && estacionVal) {
+      document.getElementById('step-1').classList.add('hidden');
+      document.getElementById('step-2').classList.remove('hidden');
+      document.getElementById('display-user').innerText = `👤 ${session.empleado.slice(1,6)}`;
+      document.getElementById('display-station').innerText = `📍 ${session.estacion.toUpperCase()}`;
+      document.getElementById('ticket-id').focus();
+    }else {
+      alert('Debes escanear los datos que se solicitan ⚠️')
+    }
+  }
+
+  function syncVal(type) {
+    if(type === 'time') {
+      const v = document.getElementById('sl-time').value;
+      document.getElementById('val-sl-time').innerText = parseFloat(v).toFixed(1);
+    } else {
+      document.getElementById('val-sl-temp').innerText = document.getElementById('sl-temp').value;
+    }
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500); // Se cierra tras 2.5 seg
+  }
+
+  async function api(payload) {
+    try {
+      const r = await fetch(WEB_APP_URL, { method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
+      return await r.json();
+    } catch (e) { console.error(e); alert("Falla de red"); return { success: false }; }
+  }
+
+  async function doBuscar() {
+
+    session.pcn = document.getElementById('pcn-id').value.trim();
+
+    if(!session.pcn) return;
+    setLoad(true);
+    const res = await api({ action: "buscar", pcn: session.pcn });
+    setLoad(false);
+
+    if(res && res.success) {
+      isManual = false; session.time = res.time; session.temp = res.temp;
+      updateModal(res.time, res.temp, false);
+    } else {
+      isManual = true; updateModal("", "", true);
+    }
+    document.getElementById('modal').classList.add('active');
+  }
+
+  function handleRechazar() {
+    if(!isManual) {
+      isManual = true; updateModal("", "", true);
+      document.getElementById('modal-title').innerText = "Corrección Manual";
+    } else { document.getElementById('modal').classList.remove('active'); }
+  }
+
+  async function finalizarRegistro(status) {
+    if(isManual) {
+      session.time = document.getElementById('sl-time').value;
+      session.temp = document.getElementById('sl-temp').value;
+    }
+    document.getElementById('modal').classList.remove('active');
+    setLoad(true);
+    const res = await api({ action: "guardar", datos: { ...session, status: status } });
+    setLoad(false);
+    if(res && res.success) {
+      showToast();
+      document.getElementById('ticket-id').value = ""; document.getElementById('pcn-id').value = "";
+      document.getElementById('ticket-id').focus();
+    }
+  }
+
+  function updateModal(time, temp, manual) {
+    const tT = document.getElementById('txt-time'); const tTp = document.getElementById('txt-temp');
+    const cT = document.getElementById('cont-time'); const cTp = document.getElementById('cont-temp');
+    const msg = document.getElementById('manual-msg'); const btn = document.getElementById('btn-cancel');
+    const title = document.getElementById('modal-title');
+
+    if(manual) {
+      tT.classList.add('hidden'); tTp.classList.add('hidden');
+      cT.classList.remove('hidden'); cTp.classList.remove('hidden');
+      msg.classList.remove('hidden'); title.innerText = "Entrada Manual";
+      btn.innerText = "Cancelar"; syncVal('time'); syncVal('temp');
+    } else {
+      tT.innerText = time; tTp.innerText = temp;
+      tT.classList.remove('hidden'); tTp.classList.remove('hidden');
+      cT.classList.add('hidden'); cTp.classList.add('hidden');
+      msg.classList.add('hidden'); title.innerText = "Parámetros Sugeridos";
+      btn.innerText = "Editar";
+    }
+  }
+
+  function setLoad(s) { document.getElementById('loading').style.display = s ? 'flex' : 'none'; }
+</script>
+</body>
+</html>
