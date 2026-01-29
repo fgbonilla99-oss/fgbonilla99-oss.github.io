@@ -3,31 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quality Control System</title>
+  <title>Quality Control System - Proceso Final</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #6366f1; --primary-dark: #4f46e5; --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      --text-main: #1e293b; --text-muted: #64748b; --glass: rgba(255, 255, 255, 0.8);
-      --success: #10b981; --danger: #ef4444; --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-
-    .mensaje-exito {
-      margin-top: 10px;
-      color: #10b981;
-      display: none;
+      --text-main: #1e293b; --text-muted: #64748b; --glass: rgba(255, 255, 255, 0.85);
+      --success: #10b981; --danger: #ef4444; --shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-main);
+      background: var(--bg-gradient); color: var(--text-main);
       display: flex; justify-content: center; align-items: center;
       min-height: 100vh; padding: 20px;
     }
 
+    /* --- Notificación Toast --- */
     #toast {
       position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
       background: var(--success); color: white; padding: 16px 32px;
@@ -37,79 +31,79 @@
     }
     #toast.show { top: 30px; }
 
-    /* --- Container & Card --- */
+    /* --- Card Principal --- */
     .card {
-      background: var(--glass);
-      backdrop-filter: blur(12px);
+      background: var(--glass); backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.5);
-      padding: 3rem 2.5rem;
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      width: 100%; max-width: 480px;
-      position: relative; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 3rem 2.5rem; border-radius: 24px; box-shadow: var(--shadow);
+      width: 100%; max-width: 480px; position: relative;
     }
 
-    h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center; color: var(--text-main); letter-spacing: -0.025em; }
+    h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center; }
     p.subtitle { text-align: center; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; }
 
-    /* --- Info Bar --- */
     .info-bar {
       background: #eff6ff; color: #1d4ed8; padding: 14px; border-radius: 16px;
       font-size: 0.85rem; margin-bottom: 1.5rem; border: 1px solid #dbeafe;
-      display: flex; justify-content: space-between; align-items: center; font-weight: 600;
+      display: flex; justify-content: space-between; font-weight: 600;
     }
 
-    /* --- Inputs Estilizados --- */
-    .input-group { margin-bottom: 1.5rem; position: relative; }
-    .input-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .input-group { margin-bottom: 1.5rem; }
+    .input-group label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
     
     input[type="text"] {
-      width: 100%; padding: 16px; background: #ffffff;
-      border: 2px solid #e2e8f0; border-radius: 14px;
-      font-size: 1rem; transition: all 0.2s; outline: none; font-family: inherit;
+      width: 100%; padding: 16px; background: #fff; border: 2px solid #e2e8f0; border-radius: 16px;
+      font-size: 1rem; outline: none; transition: all 0.2s;
     }
+    input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
 
-    input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); transform: translateY(-1px); }
-
-    /* --- Modal & Sliders --- */
+    /* --- Modal y Sliders --- */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(15, 23, 42, 0.6); display: none;
       justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px);
     }
     .modal-overlay.active { display: flex; }
+    .modal { background: #fff; padding: 2.5rem; border-radius: 32px; width: 90%; max-width: 420px; text-align: center; }
 
-    .modal {
-      background: #ffffff; padding: 2.5rem; border-radius: 30px;
-      width: 90%; max-width: 420px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    /* Estilo del Interruptor de Tape dentro del Modal */
+    .switch-container {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #f1f5f9; padding: 15px 20px;
+      border-radius: 18px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;
     }
+    .switch-label { font-size: 0.9rem; font-weight: 800; color: var(--text-main); }
+    .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider-toggle {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #cbd5e1; transition: .4s; border-radius: 34px;
+    }
+    .slider-toggle:before {
+      position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px;
+      background-color: white; transition: .4s; border-radius: 50%;
+    }
+    input:checked + .slider-toggle { background-color: var(--primary); }
+    input:checked + .slider-toggle:before { transform: translateX(24px); }
 
     .param-box { background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 1rem; border: 1px solid #f1f5f9; }
-    .param-label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 8px; }
+    .param-label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 8px; }
     .param-val { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
 
-    /* Estilo del Slider */
     .slider-container { margin-top: 15px; }
-    input[type="range"] { -webkit-appearance: none; width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; outline: none; }
-    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .slider-val-badge { display: inline-block; margin-top: 10px; background: var(--primary); color: #fff; padding: 4px 12px; border-radius: 10px; font-weight: 700; font-size: 1.1rem; }
+    input[type="range"] { -webkit-appearance: none; width: 100%; height: 8px; background: #e2e8f0; border-radius: 10px; outline: none; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 3px solid #fff; }
+    .badge-val { display: inline-block; margin-top: 10px; background: var(--primary); color: #fff; padding: 4px 14px; border-radius: 12px; font-weight: 800; }
 
     /* --- Botones --- */
     .btn-group { display: flex; gap: 12px; margin-top: 2rem; }
-    button {
-      flex: 1; padding: 16px; border: none; border-radius: 14px;
-      cursor: pointer; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;
-      transition: all 0.2s; font-family: inherit;
-    }
-    .btn-ok { background: var(--primary); color: white; }
-    .btn-ok:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4); }
+    button { flex: 1; padding: 16px; border: none; border-radius: 16px; cursor: pointer; font-weight: 700; text-transform: uppercase; transition: all 0.2s; font-family: inherit; }
+    .btn-ok { background: var(--primary); color: #fff; }
     .btn-no { background: #f1f5f9; color: var(--text-muted); }
-    .btn-no:hover { background: #e2e8f0; color: var(--danger); }
 
-    /* --- Utilities --- */
     .hidden { display: none !important; }
     .loader { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; border-radius: 24px; }
-    .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
@@ -117,53 +111,60 @@
 
 <div id="toast"><span>✅</span> REGISTRO GUARDADO</div>
 
-<div class="card" id="main-container">
-  <div id="loading" class="loader"><div class="spinner"></div><span>Procesando...</span></div>
+<div class="card">
+  <div id="loading" class="loader"><div class="spinner"></div></div>
 
   <div id="step-1">
     <h2>Contención de sellado</h2>
-    <p class="subtitle">Ingresa los siguientes datos para comenzar</p>
+    <p class="subtitle">Ingresa tus credenciales</p>
     <div class="input-group">
       <label>Gafete de Empleado</label>
-      <input type="text" id="emp-id" placeholder="Escanea tu código" autofocus autocomplete="off">
+      <input type="text" id="emp-id" placeholder="Escanea tu gafete" autofocus autocomplete="off">
     </div>
     <div class="input-group">
       <label>Estación de Trabajo</label>
-      <input type="text" id="station-id" placeholder="Escanea la estación" autocomplete="off">
+      <input type="text" id="station-id" placeholder="Escanea tu estación" autocomplete="off">
     </div>
   </div>
 
   <div id="step-2" class="hidden">
-    <h2>Registro</h2>
-    <p class="subtitle">Escanea los datos de la pieza</p>
+    <h2>Registro de Pieza</h2>
+    <p class="subtitle">Escanea los códigos correspondientes</p>
     <div class="info-bar">
       <span id="display-user"></span>
       <span id="display-station"></span>
     </div>
     <div class="input-group">
       <label>Código de Ticket</label>
-      <input type="text" id="ticket-id" placeholder="Escanea el ticket" autocomplete="off">
+      <input type="text" id="ticket-id" placeholder="Escanea ticket" autocomplete="off">
     </div>
     <div class="input-group">
       <label>Número de Parte (PCN)</label>
-      <input type="text" id="pcn-id" placeholder="Escanea el PCN" autocomplete="off">
-      <br>
-      <p class="mensaje-exito">Registro guardado correctamente ✅</p>
+      <input type="text" id="pcn-id" placeholder="Escanea PCN" autocomplete="off">
     </div>
   </div>
 </div>
 
 <div id="modal" class="modal-overlay">
   <div class="modal">
-    <h3 id="modal-title" style="font-weight: 800; margin-bottom: 15px;">Validación</h3>
-    <p id="manual-msg" class="hidden" style="color:var(--danger); font-size: 0.85rem; font-weight:700; margin-bottom:15px;">⚠️ DATO NO ENCONTRADO EN SISTEMA</p>
+    <h3 id="modal-title" style="margin-bottom: 20px; font-weight: 800;">Validación de Proceso</h3>
+    
+    <div class="switch-container">
+      <span class="switch-label">¿LA PIEZA LLEVA TAPE?</span>
+      <label class="switch">
+        <input type="checkbox" id="tape-switch" checked>
+        <span class="slider-toggle"></span>
+      </label>
+    </div>
+
+    <p id="manual-msg" class="hidden" style="color:var(--danger); font-weight:800; margin-bottom:15px; font-size: 0.8rem;">⚠️ PCN NO ENCONTRADO - INGRESO MANUAL</p>
     
     <div class="param-box">
-      <span class="param-label">Tiempo (s)</span>
+      <span class="param-label">Tiempo de Sellado (s)</span>
       <span id="txt-time" class="param-val">--</span>
       <div id="cont-time" class="hidden slider-container">
         <input type="range" id="sl-time" min="2" max="6" step="0.1" value="4" oninput="syncVal('time')">
-        <div class="slider-val-badge"><span id="val-sl-time">4.0</span>s</div>
+        <div class="badge-val"><span id="val-sl-time">4.0</span>s</div>
       </div>
     </div>
 
@@ -172,7 +173,7 @@
       <span id="txt-temp" class="param-val">--</span>
       <div id="cont-temp" class="hidden slider-container">
         <input type="range" id="sl-temp" min="100" max="300" step="10" value="200" oninput="syncVal('temp')">
-        <div class="slider-val-badge"><span id="val-sl-temp">200</span>°C</div>
+        <div class="badge-val"><span id="val-sl-temp">200</span>°C</div>
       </div>
     </div>
 
@@ -186,10 +187,9 @@
 
 
 <script>
-  // CONFIGURACIÓN: Reemplaza con tu URL de Google
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyB36LaPZLUFc_hpc3MlOl5ygK5pAqxSG8jeiRusnK27WDY_g8mhZq3Zwj4mXgZBAiEzg/exec";
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyINXcng-Tcs_brd8vFbrMZZd1SPxNRVSjb2xnYbwOAg_Ukcg-Of6zN2hDV5UdXLNkw9w/exec";
 
-  let session = { empleado: '', estacion: '', pcn: '', time: '', temp: '' };
+  let session = { empleado: '', estacion: '', pcn: '', time: '', temp: '', tape: 'SI' };
   let isManual = false;
 
   // Listeners de Escáner
@@ -202,9 +202,9 @@
     session.empleado = document.getElementById('emp-id').value.trim();
     session.estacion = document.getElementById('station-id').value.trim();
 
+    // TUS VALIDACIONES ORIGINALES
     let empleadoVal = session.empleado.length === 7 && (session.empleado[0] === '0' && session.empleado[6].toUpperCase() === 'A');
     let estacionVal = session.estacion.slice(0,3).toUpperCase() === 'ROL';
-
 
     if(empleadoVal && estacionVal) {
       document.getElementById('step-1').classList.add('hidden');
@@ -212,38 +212,33 @@
       document.getElementById('display-user').innerText = `👤 ${session.empleado.slice(1,6)}`;
       document.getElementById('display-station').innerText = `📍 ${session.estacion.toUpperCase()}`;
       document.getElementById('ticket-id').focus();
-    }else {
-      alert('Debes escanear los datos que se solicitan ⚠️')
+    } else {
+      alert('Debes escanear los datos que se solicitan (Gafete 7 carac. / Estación ROL) ⚠️');
     }
   }
 
-  function syncVal(type) {
-    if(type === 'time') {
-      const v = document.getElementById('sl-time').value;
-      document.getElementById('val-sl-time').innerText = parseFloat(v).toFixed(1);
-    } else {
-      document.getElementById('val-sl-temp').innerText = document.getElementById('sl-temp').value;
-    }
+  function syncVal(t) {
+    if(t === 'time') { document.getElementById('val-sl-time').innerText = parseFloat(document.getElementById('sl-time').value).toFixed(1); }
+    else { document.getElementById('val-sl-temp').innerText = document.getElementById('sl-temp').value; }
   }
 
   function showToast() {
     const t = document.getElementById('toast');
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500); // Se cierra tras 2.5 seg
+    setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  async function api(payload) {
+  async function api(p) {
     try {
-      const r = await fetch(WEB_APP_URL, { method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
+      const r = await fetch(WEB_APP_URL, { method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(p) });
       return await r.json();
-    } catch (e) { console.error(e); alert("Falla de red"); return { success: false }; }
+    } catch (e) { console.error(e); return { success: false }; }
   }
 
   async function doBuscar() {
-
     session.pcn = document.getElementById('pcn-id').value.trim();
-
     if(!session.pcn) return;
+
     setLoad(true);
     const res = await api({ action: "buscar", pcn: session.pcn });
     setLoad(false);
@@ -258,10 +253,8 @@
   }
 
   function handleRechazar() {
-    if(!isManual) {
-      isManual = true; updateModal("", "", true);
-      document.getElementById('modal-title').innerText = "Corrección Manual";
-    } else { document.getElementById('modal').classList.remove('active'); }
+    if(!isManual) { isManual = true; updateModal("", "", true); }
+    else { document.getElementById('modal').classList.remove('active'); }
   }
 
   async function finalizarRegistro(status) {
@@ -269,13 +262,20 @@
       session.time = document.getElementById('sl-time').value;
       session.temp = document.getElementById('sl-temp').value;
     }
+    
+    // CAPTURAR TAPE DESDE EL MODAL
+    session.tape = document.getElementById('tape-switch').checked ? 'SI' : 'NO';
+
     document.getElementById('modal').classList.remove('active');
     setLoad(true);
     const res = await api({ action: "guardar", datos: { ...session, status: status } });
     setLoad(false);
+    
     if(res && res.success) {
       showToast();
-      document.getElementById('ticket-id').value = ""; document.getElementById('pcn-id').value = "";
+      document.getElementById('ticket-id').value = ""; 
+      document.getElementById('pcn-id').value = "";
+      document.getElementById('tape-switch').checked = true; // Reset a SI por defecto
       document.getElementById('ticket-id').focus();
     }
   }
@@ -289,13 +289,13 @@
     if(manual) {
       tT.classList.add('hidden'); tTp.classList.add('hidden');
       cT.classList.remove('hidden'); cTp.classList.remove('hidden');
-      msg.classList.remove('hidden'); title.innerText = "Entrada Manual";
+      msg.classList.remove('hidden'); title.innerText = "Ingreso Manual";
       btn.innerText = "Cancelar"; syncVal('time'); syncVal('temp');
     } else {
       tT.innerText = time; tTp.innerText = temp;
       tT.classList.remove('hidden'); tTp.classList.remove('hidden');
       cT.classList.add('hidden'); cTp.classList.add('hidden');
-      msg.classList.add('hidden'); title.innerText = "Parámetros Sugeridos";
+      msg.classList.add('hidden'); title.innerText = "Validación de Proceso";
       btn.innerText = "Editar";
     }
   }
