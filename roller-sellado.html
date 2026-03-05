@@ -21,7 +21,6 @@
       min-height: 100vh; padding: 20px;
     }
 
-    /* --- Notificación Toast --- */
     #toast {
       position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
       background: var(--success); color: white; padding: 16px 32px;
@@ -31,7 +30,6 @@
     }
     #toast.show { top: 30px; }
 
-    /* --- Card Principal --- */
     .card {
       background: var(--glass); backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.5);
@@ -57,7 +55,6 @@
     }
     input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
 
-    /* --- Modal y Sliders --- */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(15, 23, 42, 0.6); display: none;
@@ -66,7 +63,6 @@
     .modal-overlay.active { display: flex; }
     .modal { background: #fff; padding: 2.5rem; border-radius: 32px; width: 90%; max-width: 420px; text-align: center; }
 
-    /* Estilo del Interruptor de Tape dentro del Modal */
     .switch-container {
       display: flex; align-items: center; justify-content: space-between;
       background: #f1f5f9; padding: 15px 20px;
@@ -95,7 +91,6 @@
     input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 3px solid #fff; }
     .badge-val { display: inline-block; margin-top: 10px; background: var(--primary); color: #fff; padding: 4px 14px; border-radius: 12px; font-weight: 800; }
 
-    /* --- Botones --- */
     .btn-group { display: flex; gap: 12px; margin-top: 2rem; }
     button { flex: 1; padding: 16px; border: none; border-radius: 16px; cursor: pointer; font-weight: 700; text-transform: uppercase; transition: all 0.2s; font-family: inherit; }
     .btn-ok { background: var(--primary); color: #fff; }
@@ -184,15 +179,13 @@
   </div>
 </div>
 
-
-
 <script>
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyINXcng-Tcs_brd8vFbrMZZd1SPxNRVSjb2xnYbwOAg_Ukcg-Of6zN2hDV5UdXLNkw9w/exec";
+  // REEMPLAZAR CON TU URL SIEMPRE QUE CREES UNA NUEVA IMPLEMENTACIÓN
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyIn607FfUfPF8WintwJCJp_TRioLdPlGERNdLCPmjvL_uNJMRriTBm4-1ljo9m0Q4SzA/exec";
 
-  let session = { empleado: '', estacion: '', pcn: '', time: '', temp: '', tape: 'SI' };
+  let session = { empleado: '', estacion: '', ticket: '', pcn: '', time: '', temp: '', tape: 'SI' };
   let isManual = false;
 
-  // Listeners de Escáner
   document.getElementById('emp-id').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('station-id').focus(); });
   document.getElementById('station-id').addEventListener('keypress', e => { if(e.key==='Enter') doLogin(); });
   document.getElementById('ticket-id').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('pcn-id').focus(); });
@@ -202,7 +195,6 @@
     session.empleado = document.getElementById('emp-id').value.trim();
     session.estacion = document.getElementById('station-id').value.trim();
 
-    // TUS VALIDACIONES ORIGINALES
     let empleadoVal = session.empleado.length === 7 && (session.empleado[0] === '0' && session.empleado[6].toUpperCase() === 'A');
     let estacionVal = session.estacion.slice(0,3).toUpperCase() === 'ROL';
 
@@ -258,12 +250,14 @@
   }
 
   async function finalizarRegistro(status) {
+    // CAPTURA DEL TICKET ANTES DE ENVIAR
+    session.ticket = document.getElementById('ticket-id').value.trim();
+
     if(isManual) {
       session.time = document.getElementById('sl-time').value;
       session.temp = document.getElementById('sl-temp').value;
     }
     
-    // CAPTURAR TAPE DESDE EL MODAL
     session.tape = document.getElementById('tape-switch').checked ? 'SI' : 'NO';
 
     document.getElementById('modal').classList.remove('active');
@@ -275,8 +269,10 @@
       showToast();
       document.getElementById('ticket-id').value = ""; 
       document.getElementById('pcn-id').value = "";
-      document.getElementById('tape-switch').checked = true; // Reset a SI por defecto
+      document.getElementById('tape-switch').checked = true;
       document.getElementById('ticket-id').focus();
+    } else {
+      alert("Error al guardar: " + (res.error || "Desconocido"));
     }
   }
 
@@ -304,3 +300,4 @@
 </script>
 </body>
 </html>
+
