@@ -31,7 +31,7 @@
             overflow: hidden;
             max-width: 950px;
             width: 95%;
-            margin: 20px 0; /* Añadido margen para pantallas pequeñas */
+            margin: 20px 0;
         }
 
         .column { padding: 40px; flex: 1; box-sizing: border-box; }
@@ -101,7 +101,6 @@
         }
 
         .modal-header h3 { margin: 0; font-size: 18px; color: var(--text-main); }
-
         .modal-body { padding: 25px; text-align: center; }
         
         .visual-aid-container {
@@ -116,11 +115,7 @@
             border-radius: 4px;
         }
 
-        .visual-aid-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
+        .visual-aid-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
         .action-instruction {
             font-size: 20px;
@@ -139,11 +134,11 @@
         .btn-confirm { background-color: var(--success-green); flex: 1; }
         .btn-reject { background-color: var(--error-red); flex: 1; }
 
+        /* Estilos para botones bloqueados en el modal */
         .btn-confirm:disabled, .btn-reject:disabled {
-            background-color: #E5E7EB !important; /* Color gris claro */
-            color: #9CA3AF !important; /* Letra gris oscuro */
+            background-color: #E5E7EB !important; 
+            color: #9CA3AF !important; 
             cursor: not-allowed;
-            transform: none;
         }
 
         @media (max-width: 768px) {
@@ -151,11 +146,6 @@
             .column { padding: 20px; }
             .image-column img { height: 200px; }
         }
-
-        .titulo-problema {
-            text-align: center;
-        }
-
     </style>
 </head>
 <body>
@@ -172,7 +162,7 @@
                 <input type="text" id="num_empleado" placeholder="Escanea gafete" required minlength="7">
                 <label>Estación de Trabajo</label>
                 <input type="text" id="estacion_trabajo" placeholder="Escanea estación" required minlength="10">
-                <button id="btn-login">Ingresar al Sistema</button>
+                <button type="button" id="btn-login">Ingresar al Sistema</button>
             </div>
 
             <div id="formulario-container" style="display:none;">
@@ -209,66 +199,19 @@
                         <label>Configuración de motor ticket</label>
                         <select id="motor_ticket" name="motor_ticket">  
                             <option value="1043755">1043755</option>
-                            <option value="1043756">1043756</option>
-                            <option value="1043757">1043757</option>
-                            <option value="1043758">1043758</option>
-                            <option value="1043759">1043759</option>
-                            <option value="1043850">1043850</option>
-                            <option value="1043851">1043851</option>
-                            <option value="1043852">1043852</option>
-                            <option value="1043853">1043853</option>
-                            <option value="1043854">1043854</option>
-                            <option value="1043855">1043855</option>
-                            <option value="1043856">1043856</option>
-                            <option value="1043725">1043725</option>
-                            <option value="1043726">1043726</option>
-                            <option value="1043727">1043727</option>
-                            <option value="1043728">1043728</option>
-                            <option value="1043729">1043729</option>
-                            <option value="1043750">1043750</option>
-                            <option value="1043751">1043751</option>
-                            <option value="1043752">1043752</option>
-                            <option value="1050881">1050881</option>
-                            <option value="1050882">1050882</option>
-                            <option value="1050883">1050883</option>
-                            <option value="1050884">1050884</option>
                             <option value="1050885">1050885</option>
-                        </select>
+                            </select>
 
                         <label>Nueva configuración de motor</label>
                         <select id="motor_colocado" name="motor_colocado">
                             <option value="1043755">1043755</option>
-                            <option value="1043756">1043756</option>
-                            <option value="1043757">1043757</option>
-                            <option value="1043758">1043758</option>
-                            <option value="1043759">1043759</option>
-                            <option value="1043850">1043850</option>
-                            <option value="1043851">1043851</option>
-                            <option value="1043852">1043852</option>
-                            <option value="1043853">1043853</option>
-                            <option value="1043854">1043854</option>
-                            <option value="1043855">1043855</option>
-                            <option value="1043856">1043856</option>
-                            <option value="1043725">1043725</option>
-                            <option value="1043726">1043726</option>
-                            <option value="1043727">1043727</option>
-                            <option value="1043728">1043728</option>
-                            <option value="1043729">1043729</option>
-                            <option value="1043750">1043750</option>
-                            <option value="1043751">1043751</option>
-                            <option value="1043752">1043752</option>
-                            <option value="1050881">1050881</option>
-                            <option value="1050882">1050882</option>
-                            <option value="1050883">1050883</option>
-                            <option value="1050884">1050884</option>
                             <option value="1050885">1050885</option>
-                        </select>
+                            </select>
 
                         <div id="otro-motor-field" style="margin-top: 10px;">
                             <label>Especifica las vueltas</label>
                             <input type="number" id="motor_otro" name="motor_otro" placeholder="Min. 1 vuelta" min="1" max="30">
                         </div>
-
                     </div>
 
                     <button type="submit" id="btn-enviar">Guardar Registro</button>
@@ -283,7 +226,7 @@
     <div id="modal-seguimiento" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <h3 id="titulo-problema" style="text-align: center;">Seguimiento de Calidad</h3>
+                <h3 id="texto-problema" style="text-align: center;">Seguimiento de Calidad</h3>
             </div>
             <div class="modal-body">
                 <div class="visual-aid-container">
@@ -302,11 +245,12 @@
     </div>
 
     <script>
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxhW0iuQMkM4VoddNonIFmKoLeUdLchBDCs1D5XjmH_I65i0lVT5i1VfxU625_fgOhE/exec"; // RECUERDA PONER TU URL
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxM8UkBFa0gPBrjTtEXuYI14X7uZOEGruGrpbvWZwGptfZoFhQ9Ig985yoIoJE0yc_-EA/exec"; 
+        
         let empleadoLogueado = "";
         let estacionLogueada = "";
+        let pasoActual = 0, flujoActual = [], accionResuelta = "", cantidadAplicada = "", resultadoRetrabajo = "";
 
-        // CONFIGURACIÓN DE IMÁGENES
         const MAPA_IMAGENES = {
             "Se sube de arriba y abajo": "/sube-sube.gif",
             "Se sube de arriba y se baja de abajo": "/sube-baja.gif",
@@ -329,29 +273,6 @@
             "Solo se baja de arriba": ["Agregar vueltas", "Agregar pesas (cuantas)", "Agregar 1 dumper", "Cambiar a un motor mas debil"]
         };
 
-        let pasoActual = 0, flujoActual = [], accionResuelta = "", cantidadAplicada = "";
-
-        // Lógica de visualización del modal
-        document.getElementById('tipo_problema').addEventListener('change', function() {
-            const problema = this.value;
-            accionResuelta = ""; // Resetear acción al cambiar
-            cantidadAplicada = "";
-            
-            if (flujosProblema[problema]) {
-                flujoActual = flujosProblema[problema];
-                pasoActual = 0;
-                
-                // Actualizar imagen del problema
-                const imgElement = document.getElementById('img-problema-ejemplo');
-                imgElement.src = MAPA_IMAGENES[problema] || "";
-                
-                mostrarPaso();
-                document.getElementById('modal-seguimiento').style.display = 'flex';
-                document.getElementById('titulo-problema').innerText = problema;
-            }
-        });
-
-        // Nueva función auxiliar para bloquear/desbloquear ambos botones
         function toggleBotonesModal(bloquear) {
             document.getElementById('btn-quedo').disabled = bloquear;
             document.getElementById('btn-no-quedo').disabled = bloquear;
@@ -367,75 +288,79 @@
                 inputCuantas.style.display = 'block';
                 inputCuantas.value = '';
                 inputCuantas.focus();
-                
-                // NUEVO: Bloqueamos los botones porque el input está vacío al iniciar
                 toggleBotonesModal(true); 
             } else {
                 textoAccion.textContent = accion;
                 inputCuantas.style.display = 'none';
-                
-                // NUEVO: Liberamos los botones porque esta acción no requiere input
                 toggleBotonesModal(false); 
             }
         }
 
-        // NUEVO: Escuchar cada vez que el usuario teclea algo en el input
         document.getElementById('modal-input-cuantas').addEventListener('input', function() {
-            // Si el input tiene un valor y es mayor a 0, desbloqueamos los botones
             if (this.value && parseInt(this.value) > 0) {
                 toggleBotonesModal(false);
             } else {
-                // Si borran el número o ponen 0, volvemos a bloquear
                 toggleBotonesModal(true);
             }
         });
 
-        // Eventos de botones (Confirmar/Rechazar)
-        document.getElementById('btn-quedo').addEventListener('click', function() {
+        document.getElementById('tipo_problema').addEventListener('change', function() {
+            const problema = this.value;
+            accionResuelta = ""; 
+            cantidadAplicada = "";
+            resultadoRetrabajo = ""; 
+            
+            if (flujosProblema[problema]) {
+                flujoActual = flujosProblema[problema];
+                pasoActual = 0; 
+                
+                const imgElement = document.getElementById('img-problema-ejemplo');
+                imgElement.src = MAPA_IMAGENES[problema] || "";
+                
+                mostrarPaso();
+                document.getElementById('modal-seguimiento').style.display = 'flex';
+                document.getElementById('texto-problema').innerText = problema;
+            }
+        });
+
+        document.getElementById('btn-quedo').addEventListener('click', function(e) {
+            e.preventDefault(); 
             let accion = flujoActual[pasoActual];
             const inputVal = document.getElementById('modal-input-cuantas').value;
 
-            if (accion.includes("(cuantas)") && (!inputVal || inputVal <= 0)) {
-                alert("Ingrese una cantidad válida para continuar.");
-                document.getElementById('modal-input-cuantas').focus();
-                return;
-            }
-
             accionResuelta = accion.replace("(cuantas)", "").trim();
             cantidadAplicada = inputVal || "N/A";
+            resultadoRetrabajo = "Reparado"; 
+            
             document.getElementById('modal-seguimiento').style.display = 'none';
         });
 
-        document.getElementById('btn-no-quedo').addEventListener('click', function() {
-            pasoActual++;
+        document.getElementById('btn-no-quedo').addEventListener('click', function(e) {
+            e.preventDefault(); 
+            pasoActual++; 
+            
             if (pasoActual < flujoActual.length) {
                 mostrarPaso();
             } else {
                 accionResuelta = "Agotado - Sin solución";
                 cantidadAplicada = "N/A";
+                resultadoRetrabajo = "No Reparado"; 
+                
                 document.getElementById('modal-seguimiento').style.display = 'none';
                 alert("Se han agotado las acciones sugeridas para este problema.");
             }
         });
 
-        // Login y validaciones
+        // Login
         document.getElementById('btn-login').addEventListener('click', function(e) {
             e.preventDefault();
-            const numEmpleadoInput = document.getElementById('num_empleado');
-            const estacionInput = document.getElementById('estacion_trabajo');
-            const emp = numEmpleadoInput.value;
-            const est = estacionInput.value;
+            const emp = document.getElementById('num_empleado').value;
+            const est = document.getElementById('estacion_trabajo').value;
 
             const validateCard = (emp[6] === 'A' || emp[6] === 'a') && emp.length === 7;
 
-            if (!validateCard) {
-                alert("Error de validación: Verifique gafete.");
-                numEmpleadoInput.focus();
-                return;
-            }
-            if (est.length < 10) {
-                alert("Error de validación: Verifique código de estación.");
-                estacionInput.focus();
+            if (!validateCard || est.length < 10) {
+                alert("Verifique su gafete y código de estación.");
                 return;
             }
             
@@ -457,6 +382,24 @@
             }
         });
 
+        // Prevenir que Enter dentro del Modal envíe el formulario principal
+        document.getElementById('modal-input-cuantas').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (!document.getElementById('btn-quedo').disabled) {
+                    document.getElementById('btn-quedo').click();
+                }
+            }
+        });
+
+        // Prevenir Enter en el formulario general
+        document.getElementById('miFormulario').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && event.target.nodeName === 'INPUT' && event.target.id !== 'modal-input-cuantas') {
+                event.preventDefault();
+            }
+        });
+
+        // Enviar Formulario
         document.getElementById('miFormulario').addEventListener('submit', function(e) {
             e.preventDefault(); 
             
@@ -469,7 +412,7 @@
 
             const tipoProblemaVal = document.getElementById('tipo_problema').value;
             if (document.getElementById('estatus').value === 'Retrabajo' && flujosProblema[tipoProblemaVal] && accionResuelta === "") {
-                alert("Debes completar el flujo de seguimiento antes de guardar el registro.");
+                alert("Debes completar el flujo de seguimiento antes de guardar.");
                 document.getElementById('modal-seguimiento').style.display = 'flex';
                 return;
             }
@@ -482,15 +425,13 @@
             formData.append("estacion_trabajo", estacionLogueada);
             formData.append("accion_exitosa", accionResuelta);
             formData.append("cantidad_accion", cantidadAplicada);
+            formData.append("resultado_retrabajo", resultadoRetrabajo);
             
             const btnEnviar = document.getElementById('btn-enviar');
             btnEnviar.disabled = true;
             btnEnviar.textContent = 'Guardando...';
             
-            fetch(URL_SCRIPT, {
-                method: 'POST',
-                body: formData
-            })
+            fetch(URL_SCRIPT, { method: 'POST', body: formData })
             .then(response => response.json())
             .then(data => {
                 if (data.result === 'success') {
@@ -498,6 +439,7 @@
                     this.reset(); 
                     document.getElementById('retrabajo-fields').style.display = 'none';
                     accionResuelta = ""; 
+                    resultadoRetrabajo = "";
                     document.getElementById('codigo_ticket').focus(); 
                 } else {
                     document.getElementById('mensaje-error').style.display = 'block';
@@ -510,12 +452,6 @@
                 btnEnviar.disabled = false;
                 btnEnviar.textContent = 'Guardar Registro';
             });
-        });
-
-        document.getElementById('miFormulario').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && event.target.nodeName === 'INPUT') {
-                event.preventDefault();
-            }
         });
     </script>
 </body>
