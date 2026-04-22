@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>Calculadora de Corte</title>
+  <style>
+    /* Estética Minimalista iOS */
+    :root {
+      --bg-ios: #f2f2f7;
+      --card-bg: #ffffff;
+      --text-main: #1c1c1e;
+      --text-muted: #8e8e93;
+      --accent: #007aff;
+      --accent-disabled: #a1caff;
+      --error: #ff3b30;
+      --success: #34c759;
+      --item-height: 44px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background-color: var(--bg-ios);
+      color: var(--text-main);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: 10px;
+      margin-bottom: 24px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .ios-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      margin-bottom: 20px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"], select.classic-select {
+      width: 100%;
+      background: #f5f5f8;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text-main);
+      box-sizing: border-box;
+      appearance: none;
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus, select.classic-select:focus {
+      outline: none;
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+    .select-wrapper { position: relative; }
+    .select-wrapper::after {
+      content: "▼";
+      font-size: 10px;
+      color: var(--text-muted);
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    /* RULETAS TIPO APPLE */
+    .wheels-container {
+      display: flex;
+      background: #f5f5f8;
+      border-radius: 14px;
+      height: calc(var(--item-height) * 3);
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .wheels-highlight {
+      position: absolute;
+      top: var(--item-height);
+      left: 10px;
+      right: 10px;
+      height: var(--item-height);
+      background: rgba(0,0,0,0.05);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+    .wheel-col {
+      flex: 1;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+      position: relative;
+    }
+    .wheel-col::-webkit-scrollbar { display: none; }
+
+    .wheel-item {
+      height: var(--item-height);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: center;
+      font-size: 18px;
+      font-weight: 500;
+      color: #aeaeb2;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .wheel-item.active {
+      color: var(--text-main);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .wheel-spacer {
+      height: var(--item-height);
+    }
+
+    #error-msg {
+      color: var(--error);
+      font-size: 13px;
+      text-align: center;
+      margin-top: 12px;
+      font-weight: 500;
+      display: none;
+    }
+
+    /* Paneles de Resultados */
+    .results-panel {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric-box {
+      flex: 1;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 16px 10px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .metric-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent);
+      transition: color 0.3s ease;
+    }
+    
+    /* Estilo para la fracción */
+    .metric-fraction {
+      font-size: 16px;
+      font-weight: 600;
+      color: #505055;
+      margin-top: 2px;
+      margin-bottom: 6px;
+      min-height: 20px;
+    }
+
+    .metric-value.error-state { color: var(--error); }
+    .metric-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    button {
+      width: 100%;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 600;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:disabled { background-color: var(--accent-disabled); cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Registro de Corte</h2>
+
+    <div class="ios-card">
+      <div class="form-group">
+        <label>Shop Floor ID</label>
+        <input type="text" id="sfid" placeholder="Escanea el código..." autofocus autocomplete="off">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Clutch</label>
+          <div class="select-wrapper">
+            <select id="clutch" class="classic-select">
+              <option value="" disabled selected>Elegir</option>
+              <option value="SL15">SL15</option>
+              <option value="SL20">SL20</option>
+              <option value="SL30">SL30</option>
+              <option value="SLG200">SLG200</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tube</label>
+          <div class="select-wrapper">
+            <select id="tube" class="classic-select" disabled>
+              <option value="" disabled selected>---</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ios-card">
+      <label style="text-align: center;">Order Height (Pulgadas | Fracción)</label>
+      
+      <div class="wheels-container">
+        <div class="wheels-highlight"></div>
+        <div class="wheel-col" id="wheel-whole">
+          <div class="wheel-spacer"></div>
+          <div class="wheel-spacer"></div>
+        </div>
+        <div class="wheel-col" id="wheel-frac">
+          <div class="wheel-spacer"></div>
+          <div class="wheel-spacer"></div>
+        </div>
+      </div>
+      <div id="error-msg">El cálculo resulta en cadena negativa. Aumente la medida.</div>
+    </div>
+
+    <div class="results-panel">
+      <div class="metric-box">
+        <div class="metric-value" id="val_cut_frac">--</div>
+        <div class="metric-fraction" id="val_cut"></div>
+        <div class="metric-label">Chain Cut</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-value" id="val_loop_frac">--</div>
+        <div class="metric-fraction" id="val_loop"></div>
+        <div class="metric-label">Loop</div>
+      </div>
+    </div>
+
+    <button id="btnSave" disabled>Guardar Registro</button>
+  </div>
+
+  <script>
+    // === URL DE TU SCRIPT DE GOOGLE ===
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwmNosBFLCoUSvLWfGpzUuC86HI0uev_21tg2IX64u_LxF2V0NMF0uKfWkx8Qt1jSFW/exec';
+
+    const sfid = document.getElementById('sfid');
+    const clutch = document.getElementById('clutch');
+    const tube = document.getElementById('tube');
+    const wheelWhole = document.getElementById('wheel-whole');
+    const wheelFrac = document.getElementById('wheel-frac');
+    const valCut = document.getElementById('val_cut');
+    const valLoop = document.getElementById('val_loop');
+    const valCutFrac = document.getElementById('val_cut_frac');
+    const valLoopFrac = document.getElementById('val_loop_frac');
+    const btnSave = document.getElementById('btnSave');
+    const errorMsg = document.getElementById('error-msg');
+    
+    const ITEM_HEIGHT = 44;
+    let currentCalculations = { cut: 0, loop: 0 };
+    let activeWhole = 0;
+    let activeFrac = 0;
+
+    const combos = {
+      'SL15': ['1.5'],
+      'SL20': ['1.5'],
+      'SL30': ['1.5', '2'],
+      'SLG200': ['1.5', '2']
+    };
+
+    // ALGORITMO PARA CONVERTIR DECIMAL A FRACCIÓN (BASE 1/8)
+    function getFractionText(decimalValue) {
+      if (decimalValue === 0) return '0"';
+      
+      const wholePart = Math.floor(decimalValue);
+      const decimalPart = decimalValue - wholePart;
+      
+      // Redondear al octavo más cercano
+      const eighths = Math.round(decimalPart * 8);
+      
+      if (eighths === 0) return wholePart + '"';
+      if (eighths === 8) return (wholePart + 1) + '"';
+      
+      // Función para simplificar la fracción (Máximo Común Divisor)
+      const gcd = (a, b) => b ? gcd(b, a % b) : a;
+      const divisor = gcd(eighths, 8);
+      
+      const numerator = eighths / divisor;
+      const denominator = 8 / divisor;
+      const fractionStr = numerator + '/' + denominator + '"';
+      
+      if (wholePart === 0) return fractionStr;
+      return wholePart + ' ' + fractionStr;
+    }
+
+    for (let i = 0; i <= 150; i++) {
+      let div = document.createElement('div');
+      div.className = 'wheel-item';
+      div.dataset.val = i;
+      div.innerText = i + '"';
+      wheelWhole.insertBefore(div, wheelWhole.lastElementChild);
+    }
+
+    const fracciones = [
+      { v: 0, t: '0"' }, { v: 0.125, t: '1/8"' }, { v: 0.25, t: '1/4"' },
+      { v: 0.375, t: '3/8"' }, { v: 0.5, t: '1/2"' }, { v: 0.625, t: '5/8"' },
+      { v: 0.75, t: '3/4"' }, { v: 0.875, t: '7/8"' }
+    ];
+    
+    fracciones.forEach(f => {
+      let div = document.createElement('div');
+      div.className = 'wheel-item';
+      div.dataset.val = f.v;
+      div.innerText = f.t;
+      wheelFrac.insertBefore(div, wheelFrac.lastElementChild);
+    });
+
+    wheelWhole.children[1].classList.add('active');
+    wheelFrac.children[1].classList.add('active');
+
+    function attachScrollLogic(col, type) {
+      col.addEventListener('scroll', () => {
+        let index = Math.round(col.scrollTop / ITEM_HEIGHT);
+        let items = col.querySelectorAll('.wheel-item');
+        
+        if (index < 0) index = 0;
+        if (index >= items.length) index = items.length - 1;
+
+        items.forEach((item, i) => {
+          if (i === index) {
+            item.classList.add('active');
+            if(type === 'whole') activeWhole = parseFloat(item.dataset.val);
+            if(type === 'frac') activeFrac = parseFloat(item.dataset.val);
+          } else {
+            item.classList.remove('active');
+          }
+        });
+        calculate();
+      });
+    }
+
+    attachScrollLogic(wheelWhole, 'whole');
+    attachScrollLogic(wheelFrac, 'frac');
+
+    clutch.addEventListener('change', () => {
+      const opts = combos[clutch.value];
+      tube.innerHTML = '<option value="" disabled selected>---</option>';
+      opts.forEach(t => tube.innerHTML += `<option value="${t}">${t}"</option>`);
+      tube.disabled = false;
+      if (opts.length === 1) tube.value = opts[0];
+      calculate();
+    });
+
+    tube.addEventListener('change', calculate);
+    sfid.addEventListener('input', validateForm);
+
+    function calculate() {
+      const c = clutch.value;
+      const t = tube.value; 
+      const oh = activeWhole + activeFrac; 
+      
+      if (!c || !t) return;
+
+      let res = 0;
+
+      if (c === 'SL15' && t === '1.5') res = (oh - 15) * 2;
+      else if (c === 'SL20' && t === '1.5') res = (oh - 15) * 2;
+      else if (c === 'SL30' && t === '1.5') res = (oh * 2) + 5;
+      else if (c === 'SL30' && t === '2') res = (oh - 13) * 2;
+      else if (c === 'SLG200' && t === '1.5') res = (oh + 5) * 2;
+      else if (c === 'SLG200' && t === '2') res = (oh - 4.5) * 2;
+
+      if (oh === 0) {
+        valCut.innerText = "--";
+        valCutFrac.innerText = "";
+        valLoop.innerText = "--";
+        valLoopFrac.innerText = "";
+        errorMsg.style.display = "none";
+        valCut.classList.remove('error-state');
+        valLoop.classList.remove('error-state');
+        currentCalculations.cut = 0;
+      } else if (res <= 0) {
+        valCut.innerText = "Error";
+        valCutFrac.innerText = "";
+        valLoop.innerText = "Error";
+        valLoopFrac.innerText = "";
+        valCut.classList.add('error-state');
+        valLoop.classList.add('error-state');
+        errorMsg.style.display = "block";
+        currentCalculations.cut = 0;
+      } else {
+        errorMsg.style.display = "none";
+        valCut.classList.remove('error-state');
+        valLoop.classList.remove('error-state');
+        
+        currentCalculations.cut = res;
+        currentCalculations.loop = res / 2;
+        
+        // Asignar el valor decimal exacto
+        valCut.innerText = res.toFixed(2);
+        valLoop.innerText = (res / 2).toFixed(2);
+        
+        // Asignar el valor convertido a fracción
+        valCutFrac.innerText = getFractionText(res);
+        valLoopFrac.innerText = getFractionText(res / 2);
+      }
+      
+      validateForm();
+    }
+
+    function validateForm() {
+      const hasId = sfid.value.trim().length > 0;
+      const isValidMath = currentCalculations.cut > 0;
+      btnSave.disabled = !(hasId && isValidMath);
+    }
+
+    btnSave.addEventListener('click', () => {
+      btnSave.disabled = true;
+      let originalText = btnSave.innerText;
+      btnSave.innerText = "Enviando...";
+
+      const data = {
+        shopFloorId: sfid.value.trim(),
+        clutch: clutch.value,
+        tube: tube.value + '"',
+        orderHeight: activeWhole + activeFrac,
+        chainLength: currentCalculations.cut,
+        loop: currentCalculations.loop
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(() => {
+        btnSave.innerText = "¡Guardado!";
+        btnSave.style.backgroundColor = "var(--success)";
+        setTimeout(() => {
+          sfid.value = '';
+          currentCalculations.cut = 0;
+          valCut.innerText = "--";
+          valCutFrac.innerText = "";
+          valLoop.innerText = "--";
+          valLoopFrac.innerText = "";
+          wheelWhole.scrollTo({ top: 0, behavior: 'smooth' });
+          wheelFrac.scrollTo({ top: 0, behavior: 'smooth' });
+          btnSave.style.backgroundColor = "var(--accent)";
+          btnSave.innerText = "Guardar Registro";
+          btnSave.disabled = true;
+          sfid.focus();
+        }, 1500);
+      })
+      .catch(err => {
+        alert('Error de conexión.');
+        btnSave.innerText = originalText;
+        btnSave.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>
