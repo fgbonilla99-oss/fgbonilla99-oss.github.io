@@ -72,7 +72,7 @@
         #mensaje-exito { color: var(--success-green); font-weight: bold; display: none; margin-top: 10px; text-align: center;}
         #mensaje-error { color: var(--error-red); font-weight: bold; display: none; margin-top: 10px; text-align: center;}
 
-        /* Diseño Profesional del Modal */
+        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -91,6 +91,8 @@
             border-radius: 4px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.3);
             overflow: hidden;
+            max-height: 95vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -105,7 +107,7 @@
         
         .visual-aid-container {
             width: 100%;
-            height: 480px;
+            height: 350px;
             background-color: #f9fafb;
             border: 1px solid #f3f4f6;
             margin-bottom: 20px;
@@ -121,7 +123,7 @@
             font-size: 20px;
             font-weight: 700;
             color: var(--primary-blue);
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
         .modal-footer {
@@ -134,7 +136,6 @@
         .btn-confirm { background-color: var(--success-green); flex: 1; }
         .btn-reject { background-color: var(--error-red); flex: 1; }
 
-        /* Estilos para botones bloqueados en el modal */
         .btn-confirm:disabled, .btn-reject:disabled {
             background-color: #E5E7EB !important; 
             color: #9CA3AF !important; 
@@ -195,23 +196,10 @@
                             <option value="No Opera">No Opera</option>
                             <option value="Sube Forzado">Sube Forzado</option>
                         </select>
+                        
+                        <input type="hidden" id="motor_ticket" name="motor_ticket" value="N/A">
+                        <input type="hidden" id="motor_colocado" name="motor_colocado" value="N/A">
 
-                        <label>Configuración de motor ticket</label>
-                        <select id="motor_ticket" name="motor_ticket">  
-                            <option value="1043755">1043755</option>
-                            <option value="1050885">1050885</option>
-                            </select>
-
-                        <label>Nueva configuración de motor</label>
-                        <select id="motor_colocado" name="motor_colocado">
-                            <option value="1043755">1043755</option>
-                            <option value="1050885">1050885</option>
-                            </select>
-
-                        <div id="otro-motor-field" style="margin-top: 10px;">
-                            <label>Especifica las vueltas</label>
-                            <input type="number" id="motor_otro" name="motor_otro" placeholder="Min. 1 vuelta" min="1" max="30">
-                        </div>
                     </div>
 
                     <button type="submit" id="btn-enviar">Guardar Registro</button>
@@ -236,6 +224,20 @@
                 <div id="modal-accion-texto" class="action-instruction"></div>
                 
                 <input type="number" id="modal-input-cuantas" placeholder="Ingrese cantidad" style="display:none; width: 60%; margin: 0 auto;">
+
+                <div id="modal-motor-fields" style="display:none; text-align: left; margin-top: 20px; padding: 15px; background: var(--bg-gray); border-radius: 5px;">
+                    <label>Configuración de motor ticket</label>
+                    <select id="modal_motor_ticket">
+                        <option value="1043755">1043755</option>
+                        <option value="1050885">1050885</option>
+                    </select>
+                    <label style="margin-top: 15px;">Nueva configuración de motor</label>
+                    <select id="modal_motor_colocado">
+                        <option value="1043755">1043755</option>
+                        <option value="1050885">1050885</option>
+                    </select>
+                </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" id="btn-quedo" class="btn-confirm">Corregido</button>
@@ -245,11 +247,15 @@
     </div>
 
     <script>
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxM8UkBFa0gPBrjTtEXuYI14X7uZOEGruGrpbvWZwGptfZoFhQ9Ig985yoIoJE0yc_-EA/exec"; 
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbyZozArPdwRr2Dlx34yhWEhnKRZbsL29GTzSJsRJGxTN4q5S8pEwMu7fx0kDBMdWymdFg/exec"; 
         
         let empleadoLogueado = "";
         let estacionLogueada = "";
         let pasoActual = 0, flujoActual = [], accionResuelta = "", cantidadAplicada = "", resultadoRetrabajo = "";
+
+        let estatusPendienteLargo = false;
+        let modoRevisionPendiente = false;
+        const accionesLargas = ["Cambiar a un motor mas debil", "Agregar 1 dumper"];
 
         const MAPA_IMAGENES = {
             "Se sube de arriba y abajo": "/sube-sube.gif",
@@ -263,8 +269,8 @@
         };
 
         const flujosProblema = {
-            "Se sube de arriba y abajo": ["Agregar pesas (cuantas)", "Quitar vueltas (cuantas)", "Cambiar a un motor mas debil", "Cambiar a un motor mas debil"],
-            "Se sube de arriba y se baja de abajo": ["Quitar vueltas (cuantas)", "Agregar 1 dumper", "Cambiar a un motor mas debil", "Cambiar a un motor mas debil"],
+            "Se sube de arriba y abajo": ["Agregar pesas (cuantas)", "Quitar vueltas (cuantas)", "Cambiar a un motor mas debil"],
+            "Se sube de arriba y se baja de abajo": ["Quitar vueltas (cuantas)", "Agregar 1 dumper", "Cambiar a un motor mas debil"],
             "Se baja de arriba y de abajo": ["Agregar 1 dumper", "Cambiar a un motor mas debil"],
             "Se baja de arriba y se sube de abajo": ["Quitar vueltas (cuantas)", "Agregar 1 dumper", "Cambiar a un motor mas debil"],
             "Solo se sube de abajo": ["Agregar pesas (cuantas)", "Agregar vueltas", "Cambiar a un motor mas debil"],
@@ -278,45 +284,93 @@
             document.getElementById('btn-no-quedo').disabled = bloquear;
         }
 
+        // Sincroniza datos del Modal al Formulario oculto
+        function capturarMotoresSiAplican() {
+            if (document.getElementById('modal-motor-fields').style.display === 'block') {
+                document.getElementById('motor_ticket').value = document.getElementById('modal_motor_ticket').value;
+                document.getElementById('motor_colocado').value = document.getElementById('modal_motor_colocado').value;
+            }
+        }
+
         function mostrarPaso() {
             let accion = flujoActual[pasoActual];
             const textoAccion = document.getElementById('modal-accion-texto');
             const inputCuantas = document.getElementById('modal-input-cuantas');
+            const motorFields = document.getElementById('modal-motor-fields');
+            
+            motorFields.style.display = 'none'; // Ocultar por defecto
 
-            if (accion.includes("(cuantas)")) {
-                textoAccion.textContent = accion.replace("(cuantas)", "").trim();
-                inputCuantas.style.display = 'block';
-                inputCuantas.value = '';
-                inputCuantas.focus();
-                toggleBotonesModal(true); 
-            } else {
-                textoAccion.textContent = accion;
+            estatusPendienteLargo = accionesLargas.some(a => accion.includes(a));
+
+            if (estatusPendienteLargo && !modoRevisionPendiente) {
+                textoAccion.innerHTML = accion + "<br><br><span style='font-size:14px; color:var(--primary-blue);'>⏳ Esta acción requiere enviar la pieza a otra estación.</span>";
                 inputCuantas.style.display = 'none';
+                
+                document.getElementById('btn-quedo').textContent = "Guardar y Enviar a Estación";
+                document.getElementById('btn-no-quedo').style.display = 'none'; 
                 toggleBotonesModal(false); 
+            } else {
+                document.getElementById('btn-quedo').textContent = modoRevisionPendiente ? "Sí, Corregido" : "Corregido";
+                document.getElementById('btn-no-quedo').style.display = 'block';
+                document.getElementById('btn-no-quedo').textContent = modoRevisionPendiente ? "No, sigue fallando" : "No Corregido";
+
+                // Si estamos en revisión y la acción involucra motor, mostrar las preguntas
+                if (modoRevisionPendiente && accion.includes("motor")) {
+                    motorFields.style.display = 'block';
+                }
+
+                if (accion.includes("(cuantas)")) {
+                    textoAccion.textContent = accion.replace("(cuantas)", "").trim();
+                    inputCuantas.style.display = 'block';
+                    inputCuantas.value = '';
+                    inputCuantas.focus();
+                    toggleBotonesModal(true); 
+                } else {
+                    textoAccion.textContent = accion;
+                    inputCuantas.style.display = 'none';
+                    toggleBotonesModal(false); 
+                }
             }
         }
 
         document.getElementById('modal-input-cuantas').addEventListener('input', function() {
-            if (this.value && parseInt(this.value) > 0) {
-                toggleBotonesModal(false);
-            } else {
-                toggleBotonesModal(true);
+            if (this.value && parseInt(this.value) > 0) toggleBotonesModal(false);
+            else toggleBotonesModal(true);
+        });
+
+        // Intercepción del escáner para piezas pendientes
+        document.getElementById('codigo_ticket').addEventListener('change', function(e) {
+            let ticket = this.value.trim();
+            let pendientes = JSON.parse(localStorage.getItem('ticketsPendientes')) || {};
+
+            if (pendientes[ticket]) {
+                let dataPendiente = pendientes[ticket];
+                
+                flujoActual = flujosProblema[dataPendiente.problema];
+                pasoActual = dataPendiente.paso;
+                modoRevisionPendiente = true;
+
+                document.getElementById('estatus').value = 'Retrabajo';
+                document.getElementById('retrabajo-fields').style.display = 'block';
+                document.getElementById('tipo_problema').value = dataPendiente.problema;
+
+                document.getElementById('texto-problema').innerText = "Revisión de Retrabajo";
+                mostrarPaso(); 
+                
+                document.getElementById('modal-accion-texto').textContent = `¿La persiana quedó reparada tras: ${dataPendiente.accionLarga}?`;
+                document.getElementById('img-problema-ejemplo').src = MAPA_IMAGENES[dataPendiente.problema] || "";
+                document.getElementById('modal-seguimiento').style.display = 'flex';
             }
         });
 
         document.getElementById('tipo_problema').addEventListener('change', function() {
             const problema = this.value;
-            accionResuelta = ""; 
-            cantidadAplicada = "";
-            resultadoRetrabajo = ""; 
+            accionResuelta = ""; cantidadAplicada = ""; resultadoRetrabajo = ""; modoRevisionPendiente = false; 
             
             if (flujosProblema[problema]) {
                 flujoActual = flujosProblema[problema];
                 pasoActual = 0; 
-                
-                const imgElement = document.getElementById('img-problema-ejemplo');
-                imgElement.src = MAPA_IMAGENES[problema] || "";
-                
+                document.getElementById('img-problema-ejemplo').src = MAPA_IMAGENES[problema] || "";
                 mostrarPaso();
                 document.getElementById('modal-seguimiento').style.display = 'flex';
                 document.getElementById('texto-problema').innerText = problema;
@@ -326,46 +380,63 @@
         document.getElementById('btn-quedo').addEventListener('click', function(e) {
             e.preventDefault(); 
             let accion = flujoActual[pasoActual];
-            const inputVal = document.getElementById('modal-input-cuantas').value;
+            const codigoTicket = document.getElementById('codigo_ticket').value.trim();
+            capturarMotoresSiAplican(); // Extraer motores si se mostraron
 
-            accionResuelta = accion.replace("(cuantas)", "").trim();
-            cantidadAplicada = inputVal || "N/A";
-            resultadoRetrabajo = "Reparado"; 
+            if (estatusPendienteLargo && !modoRevisionPendiente) {
+                let pendientes = JSON.parse(localStorage.getItem('ticketsPendientes')) || {};
+                pendientes[codigoTicket] = { problema: document.getElementById('tipo_problema').value, paso: pasoActual, accionLarga: accion };
+                localStorage.setItem('ticketsPendientes', JSON.stringify(pendientes));
+                accionResuelta = accion + " (Enviado a otra estación)";
+                cantidadAplicada = "N/A";
+                resultadoRetrabajo = "Pendiente de Validación"; 
+            } else {
+                if (modoRevisionPendiente) {
+                    let pendientes = JSON.parse(localStorage.getItem('ticketsPendientes')) || {};
+                    delete pendientes[codigoTicket];
+                    localStorage.setItem('ticketsPendientes', JSON.stringify(pendientes));
+                    modoRevisionPendiente = false;
+                }
+                const inputVal = document.getElementById('modal-input-cuantas').value;
+                accionResuelta = accion.replace("(cuantas)", "").trim();
+                cantidadAplicada = inputVal || "N/A";
+                resultadoRetrabajo = "Reparado"; 
+            }
             
             document.getElementById('modal-seguimiento').style.display = 'none';
+            document.getElementById('miFormulario').requestSubmit();
         });
 
         document.getElementById('btn-no-quedo').addEventListener('click', function(e) {
             e.preventDefault(); 
+            const codigoTicket = document.getElementById('codigo_ticket').value.trim();
+            capturarMotoresSiAplican(); // Extraer motores si se mostraron
+
+            if (modoRevisionPendiente) {
+                let pendientes = JSON.parse(localStorage.getItem('ticketsPendientes')) || {};
+                delete pendientes[codigoTicket];
+                localStorage.setItem('ticketsPendientes', JSON.stringify(pendientes));
+                modoRevisionPendiente = false;
+            }
+
             pasoActual++; 
-            
             if (pasoActual < flujoActual.length) {
                 mostrarPaso();
             } else {
                 accionResuelta = "Agotado - Sin solución";
                 cantidadAplicada = "N/A";
                 resultadoRetrabajo = "No Reparado"; 
-                
                 document.getElementById('modal-seguimiento').style.display = 'none';
-                alert("Se han agotado las acciones sugeridas para este problema.");
+                document.getElementById('miFormulario').requestSubmit();
             }
         });
 
-        // Login
+        // Login y Enter preventions...
         document.getElementById('btn-login').addEventListener('click', function(e) {
             e.preventDefault();
-            const emp = document.getElementById('num_empleado').value;
-            const est = document.getElementById('estacion_trabajo').value;
-
-            const validateCard = (emp[6] === 'A' || emp[6] === 'a') && emp.length === 7;
-
-            if (!validateCard || est.length < 10) {
-                alert("Verifique su gafete y código de estación.");
-                return;
-            }
-            
-            empleadoLogueado = emp;
-            estacionLogueada = est;
+            const emp = document.getElementById('num_empleado').value, est = document.getElementById('estacion_trabajo').value;
+            if (!((emp[6] === 'A' || emp[6] === 'a') && emp.length === 7) || est.length < 10) return alert("Verifique gafete y estación.");
+            empleadoLogueado = emp; estacionLogueada = est;
             document.getElementById('info-usuario').textContent = emp.slice(1,6) + " @ " + est;
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('formulario-container').style.display = 'block';
@@ -377,48 +448,24 @@
                 document.getElementById('retrabajo-fields').style.display = 'block';
                 document.getElementById('tipo_problema').value = ""; 
                 accionResuelta = "";
-            } else {
-                document.getElementById('retrabajo-fields').style.display = 'none';
-            }
+            } else document.getElementById('retrabajo-fields').style.display = 'none';
         });
 
-        // Prevenir que Enter dentro del Modal envíe el formulario principal
-        document.getElementById('modal-input-cuantas').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                if (!document.getElementById('btn-quedo').disabled) {
-                    document.getElementById('btn-quedo').click();
-                }
-            }
-        });
+        document.getElementById('modal-input-cuantas').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); if (!document.getElementById('btn-quedo').disabled) document.getElementById('btn-quedo').click(); }});
+        document.getElementById('miFormulario').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.nodeName === 'INPUT' && e.target.id !== 'modal-input-cuantas') e.preventDefault(); });
 
-        // Prevenir Enter en el formulario general
-        document.getElementById('miFormulario').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && event.target.nodeName === 'INPUT' && event.target.id !== 'modal-input-cuantas') {
-                event.preventDefault();
-            }
-        });
-
-        // Enviar Formulario
+        // Enviar final
         document.getElementById('miFormulario').addEventListener('submit', function(e) {
             e.preventDefault(); 
-            
             const codigoTicketInput = document.getElementById('codigo_ticket');
-            if (codigoTicketInput.value.trim() === "" || codigoTicketInput.value.length < 17) {
-                alert("Revisa el 'Código del ticket'.");
-                codigoTicketInput.focus();
-                return;
-            }
+            if (codigoTicketInput.value.trim() === "" || codigoTicketInput.value.length < 17) { alert("Revisa el ticket."); codigoTicketInput.focus(); return; }
 
             const tipoProblemaVal = document.getElementById('tipo_problema').value;
             if (document.getElementById('estatus').value === 'Retrabajo' && flujosProblema[tipoProblemaVal] && accionResuelta === "") {
-                alert("Debes completar el flujo de seguimiento antes de guardar.");
-                document.getElementById('modal-seguimiento').style.display = 'flex';
-                return;
+                alert("Completa el flujo."); document.getElementById('modal-seguimiento').style.display = 'flex'; return;
             }
             
-            document.getElementById('mensaje-exito').style.display = 'none';
-            document.getElementById('mensaje-error').style.display = 'none';
+            document.getElementById('mensaje-exito').style.display = 'none'; document.getElementById('mensaje-error').style.display = 'none';
             
             const formData = new FormData(this);
             formData.append("numero_empleado", empleadoLogueado);
@@ -428,8 +475,7 @@
             formData.append("resultado_retrabajo", resultadoRetrabajo);
             
             const btnEnviar = document.getElementById('btn-enviar');
-            btnEnviar.disabled = true;
-            btnEnviar.textContent = 'Guardando...';
+            btnEnviar.disabled = true; btnEnviar.textContent = 'Procesando...';
             
             fetch(URL_SCRIPT, { method: 'POST', body: formData })
             .then(response => response.json())
@@ -438,20 +484,14 @@
                     document.getElementById('mensaje-exito').style.display = 'block';
                     this.reset(); 
                     document.getElementById('retrabajo-fields').style.display = 'none';
-                    accionResuelta = ""; 
-                    resultadoRetrabajo = "";
-                    document.getElementById('codigo_ticket').focus(); 
-                } else {
-                    document.getElementById('mensaje-error').style.display = 'block';
-                }
+                    document.getElementById('motor_ticket').value = "N/A";
+                    document.getElementById('motor_colocado').value = "N/A";
+                    accionResuelta = ""; cantidadAplicada = ""; resultadoRetrabajo = ""; modoRevisionPendiente = false;
+                    setTimeout(() => { document.getElementById('mensaje-exito').style.display = 'none'; document.getElementById('codigo_ticket').focus(); }, 1200);
+                } else document.getElementById('mensaje-error').style.display = 'block';
             })
-            .catch(error => {
-                document.getElementById('mensaje-error').style.display = 'block';
-            })
-            .finally(() => {
-                btnEnviar.disabled = false;
-                btnEnviar.textContent = 'Guardar Registro';
-            });
+            .catch(() => document.getElementById('mensaje-error').style.display = 'block')
+            .finally(() => { btnEnviar.disabled = false; btnEnviar.textContent = 'Guardar Registro'; });
         });
     </script>
 </body>
