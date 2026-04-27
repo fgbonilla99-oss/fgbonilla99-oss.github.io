@@ -247,7 +247,8 @@
     </div>
 
     <script>
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxSssTxSUnSiiaDNEBJkZ6dLCM-EZtCOrlPqBlLJ9C_lBHpKHvmDjAsBgcsqnAEN7zegg/exec"; 
+        
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbyZozArPdwRr2Dlx34yhWEhnKRZbsL29GTzSJsRJGxTN4q5S8pEwMu7fx0kDBMdWymdFg/exec"; 
         
         let empleadoLogueado = "";
         let estacionLogueada = "";
@@ -269,14 +270,14 @@
         };
 
         const flujosProblema = {
-            "Se sube de arriba y abajo": ["Agregar pesas (cuantas)", "Quitar vueltas (cuantas)", "Cambiar a un motor mas debil"],
+            "Se sube de arriba y abajo": ["Quitar vueltas (cuantas)", "Agregar pesas (cuantas)", "Cambiar a un motor mas debil"],
             "Se sube de arriba y se baja de abajo": ["Quitar vueltas (cuantas)", "Agregar 1 dumper", "Cambiar a un motor mas debil"],
-            "Se baja de arriba y de abajo": ["Agregar 1 dumper", "Cambiar a un motor mas debil"],
-            "Se baja de arriba y se sube de abajo": ["Quitar vueltas (cuantas)", "Agregar 1 dumper", "Cambiar a un motor mas debil"],
-            "Solo se sube de abajo": ["Agregar pesas (cuantas)", "Agregar vueltas", "Cambiar a un motor mas debil"],
+            "Se baja de arriba y de abajo": ["Quitar pesas", "Agregar 1 dumper", "Cambiar a un motor mas debil"],
+            "Se baja de arriba y se sube de abajo": ["Quitar vueltas (cuantas)", "Agregar 1 dumper", "Agregar 1 dumper", "Cambiar a un motor mas debil"],
+            "Solo se sube de abajo": ["Quitar vueltas (cuantas)", "Agregar pesas (cuantas)", "Cambiar a un motor mas debil"],
             "Solo se baja de abajo": ["Agregar vueltas", "Agregar 1 dumper", "Cambiar a un motor mas debil"],
-            "Solo se sube de arriba": ["Agregar pesas (cuantas)", "Agregar vueltas", "Cambiar a un motor mas debil"],
-            "Solo se baja de arriba": ["Agregar vueltas", "Agregar pesas (cuantas)", "Agregar 1 dumper", "Cambiar a un motor mas debil"]
+            "Solo se sube de arriba": ["Agregar vueltas", "Agregar pesas (cuantas)", "Cambiar a un motor mas debil"],
+            "Solo se baja de arriba": ["Agregar vueltas", "Agregar 1 dumper", "Cambiar a un motor mas debil"]
         };
 
         function toggleBotonesModal(bloquear) {
