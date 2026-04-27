@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Seguimiento Calidad - AGL</title>
+    <style>
+        :root {
+            --primary-blue: #00529B;
+            --success-green: #2E7D32;
+            --error-red: #C62828;
+            --bg-gray: #F5F7F8;
+            --border-color: #D1D5DB;
+            --text-main: #1F2937;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; background-color: #374151; 
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+
+        .main-layout {
+            background-color: #fff; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-width: 1000px; width: 95%; margin: 20px 0; padding: 40px; box-sizing: border-box;
+        }
+
+        h2 { color: var(--text-main); margin-top: 0; }
+        
+        /* Contenedor de Búsqueda */
+        .search-container { margin-bottom: 25px; position: relative; }
+        .search-container input {
+            width: 100%; padding: 12px 12px 12px 40px; box-sizing: border-box;
+            border: 2px solid var(--primary-blue); border-radius: 4px; font-size: 16px;
+        }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; }
+
+        /* Estilos de la Tabla */
+        .table-container { overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background-color: var(--bg-gray); color: var(--text-main); font-weight: 600; text-align: left; padding: 12px; border-bottom: 2px solid var(--border-color); }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 14px; color: #4B5563; }
+        tr:hover { background-color: #f9fafb; }
+
+        .codigo-falla { font-weight: bold; color: var(--error-red); }
+
+        button {
+            padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; border: none; transition: 0.2s;
+        }
+        .btn-resolver { background-color: var(--success-green); color: white; }
+        .btn-resolver:hover { background-color: #246628; }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(31, 41, 55, 0.85); z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-card { background: #fff; width: 90%; max-width: 500px; border-radius: 4px; padding: 25px; }
+        textarea { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid var(--border-color); border-radius: 4px; margin: 15px 0; font-family: inherit; }
+        .modal-footer { display: flex; gap: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="main-layout">
+        <div id="login-container" style="max-width: 400px; margin: 0 auto; text-align: center;">
+            <h2>Acceso Seguimiento</h2>
+            <input type="text" id="num_empleado" placeholder="Escanea gafete o ingresa número" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ccc; border-radius:4px;">
+            <button class="btn-resolver" style="width:100%; background-color: var(--primary-blue);" id="btn-login">Ingresar</button>
+        </div>
+
+        <div id="dashboard-container" style="display:none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Tickets Sin Solución</h2>
+                <span id="info-usuario" style="color: var(--primary-blue); font-weight: bold;"></span>
+            </div>
+
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="busqueda-ticket" placeholder="Filtrar por Código de Ticket...">
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Problema</th>
+                            <th>Estación</th>
+                            <th>Fecha Reporte</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-cuerpo">
+                        </tbody>
+                </table>
+            </div>
+            <p id="sin-tickets" style="text-align: center; color: #9CA3AF; display: none; padding: 20px;">No hay tickets pendientes.</p>
+        </div>
+    </div>
+
+    <div id="modal-cierre" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Registrar Solución Final</h3>
+            <p id="modal-ticket-codigo" style="font-weight: bold; color: var(--primary-blue);"></p>
+            <label>Notas de la Reparación:</label>
+            <textarea id="notas_seguimiento" rows="4" placeholder="Describa brevemente qué se hizo para corregir la pieza..."></textarea>
+            <div class="modal-footer">
+                <button type="button" style="background-color: var(--error-red); color:white; flex:1;" onclick="cerrarModal()">Cancelar</button>
+                <button type="button" id="btn-guardar-cierre" style="background-color: var(--success-green); color:white; flex:2;">Guardar como Reparado</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzhBOX2RfKWFEi5e48vUjivJj-m9Dhm0l4AeaiElgS_TSqvcX0s1QILOcNgLGjiNjnAlg/exec"; 
+        const USUARIOS_PERMITIDOS = ["076867A", "073323A", "064499A", "070158A"];
+        let empleadoLogueado = "", filaActual = 0, todosLosTickets = [];
+
+        document.getElementById('btn-login').addEventListener('click', () => {
+            const emp = document.getElementById('num_empleado').value.trim().toUpperCase();
+            if (USUARIOS_PERMITIDOS.includes(emp)) {
+                empleadoLogueado = emp;
+                document.getElementById('info-usuario').textContent = "Supervisor: " + emp;
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('dashboard-container').style.display = 'block';
+                cargarTickets();
+            } else { alert("Usuario no autorizado para esta pantalla."); }
+        });
+
+        // FILTRO DE BÚSQUEDA DINÁMICO
+        document.getElementById('busqueda-ticket').addEventListener('input', (e) => {
+            const valor = e.target.value.toLowerCase();
+            const filtrados = todosLosTickets.filter(t => t.codigo.toLowerCase().includes(valor));
+            renderizarTabla(filtrados);
+        });
+
+        function cargarTickets() {
+            const cuerpo = document.getElementById('tabla-cuerpo');
+            cuerpo.innerHTML = '<tr><td colspan="5" style="text-align:center;">Cargando información...</td></tr>';
+
+            fetch(URL_SCRIPT + "?action=get_no_reparados")
+            .then(res => res.json())
+            .then(data => {
+                todosLosTickets = data;
+                renderizarTabla(data);
+            })
+            .catch(() => {
+                cuerpo.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Error al conectar con el servidor.</td></tr>';
+            });
+        }
+
+        function renderizarTabla(tickets) {
+            const cuerpo = document.getElementById('tabla-cuerpo');
+            cuerpo.innerHTML = '';
+            document.getElementById('sin-tickets').style.display = tickets.length ? 'none' : 'block';
+
+            tickets.forEach(t => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td class="codigo-falla">${t.codigo}</td>
+                    <td>${t.problema}</td>
+                    <td>${t.estacion}</td>
+                    <td>${t.fecha}</td>
+                    <td><button class="btn-resolver" onclick="abrirModal(${t.fila}, '${t.codigo}')">Resolver</button></td>
+                `;
+                cuerpo.appendChild(fila);
+            });
+        }
+
+        function abrirModal(fila, codigo) {
+            filaActual = fila;
+            document.getElementById('modal-ticket-codigo').textContent = "Ticket: " + codigo;
+            document.getElementById('notas_seguimiento').value = '';
+            document.getElementById('modal-cierre').style.display = 'flex';
+        }
+
+        function cerrarModal() { document.getElementById('modal-cierre').style.display = 'none'; }
+
+        document.getElementById('btn-guardar-cierre').addEventListener('click', function() {
+            const notas = document.getElementById('notas_seguimiento').value.trim();
+            if(!notas) return alert("Por favor, ingrese las notas de reparación.");
+
+            this.disabled = true; this.textContent = "Guardando...";
+            
+            const params = new URLSearchParams({
+                tipo_accion: 'cierre_supervisor',
+                fila: filaActual,
+                numero_empleado: empleadoLogueado,
+                notas_seguimiento: notas
+            });
+
+            fetch(URL_SCRIPT, { method: 'POST', body: params })
+            .then(res => res.json())
+            .then(data => {
+                if(data.result === 'success') {
+                    cerrarModal();
+                    document.getElementById('busqueda-ticket').value = '';
+                    cargarTickets(); // Recarga la tabla para quitar el resuelto
+                } else { alert("Error al guardar: " + data.error); }
+            })
+            .catch(() => alert("Error de conexión."))
+            .finally(() => {
+                this.disabled = false; this.textContent = "Guardar como Reparado";
+            });
+        });
+    </script>
+</body>
+</html>
