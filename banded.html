@@ -1,109 +1,246 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Retrabajo</title>
     <style>
+        /* Variables y Estética Apple */
+        :root {
+            --primary: #007aff;
+            --primary-hover: #0056b3;
+            --bg-color: #f5f5f7;
+            --card-bg: #ffffff;
+            --text-main: #1d1d1f;
+            --text-secondary: #86868b;
+            --border: #d2d2d7;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             margin: 0;
-            background-color: #f4f4f4; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
+
         .main-layout {
             display: flex;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             overflow: hidden;
             max-width: 900px;
             width: 95%;
+            margin: 20px;
         }
+
+        /* min-width: 0 es crucial para que flexbox no rompa el layout con los carruseles */
         .column {
-            padding: 30px;
+            padding: 40px;
             box-sizing: border-box;
             flex: 1;
-        }
-        .column.image-column {
-            background-color: #f0f0f0; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-        }
-        .column.image-column img {
-            max-width: 100%;
-            max-height: 100%;
-            display: block;
-            object-fit: cover;
-            border-radius: 8px 0 0 8px;
+            min-width: 0; 
         }
 
-        h2, h3 { color: #333; margin-top: 0; }
-        div { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .column.image-column {
+            background-color: #e5e5ea; 
+            padding: 0;
+            display: flex;
+        }
+
+        .column.image-column img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h2, h3 { color: var(--text-main); margin-top: 0; font-weight: 600; letter-spacing: -0.5px; }
+        h2 { font-size: 28px; margin-bottom: 24px; }
+        h3 { font-size: 20px; }
+
+        .input-group { margin-bottom: 20px; width: 100%; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 14px; }
+
         input[type="text"], input[type="number"], select {
             width: 100%;
-            padding: 10px;
+            padding: 12px 16px;
             box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
             font-size: 16px;
+            background-color: #fafafa;
+            appearance: none;
+            transition: all 0.2s;
         }
-        input:disabled {
-            background-color: #eee;
-            cursor: not-allowed;
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
+            background-color: #fff;
         }
-        button {
-            padding: 12px 20px;
-            background-color: #007bff;
+
+        button.btn-primary {
+            width: 100%;
+            padding: 14px 20px;
+            background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s ease;
+            font-weight: 600;
+            transition: transform 0.1s, background-color 0.2s;
         }
-        button:disabled {
-            background-color: #9ecbff;
-            cursor: not-allowed;
-        }
-        button:hover { background-color: #0056b3; }
-        button:disabled:hover { background-color: #9ecbff; }
+        button.btn-primary:active { transform: scale(0.98); }
+        button.btn-primary:hover { background-color: var(--primary-hover); }
+        button.btn-primary:disabled { background-color: #a1caff; cursor: not-allowed; transform: none;}
 
-        #mensaje-exito { color: #28a745; font-weight: bold; display: none; margin-top: 10px;}
-        #mensaje-error { color: #dc3545; font-weight: bold; display: none; margin-top: 10px;}
+        hr { border: 0; border-top: 1px solid var(--border); margin: 24px 0; }
+
+        .msg { padding: 12px; border-radius: var(--radius-md); font-weight: 500; display: none; margin-top: 16px; text-align: center; }
+        #mensaje-exito { background-color: #e5f8ed; color: #28a745; }
+        #mensaje-error { background-color: #fdf3f4; color: #dc3545; }
         
         #formulario-container { display: none; }
-        #info-usuario { color:#007bff; }
-        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+        #retrabajo-fields { display: none; margin-top: 24px; }
+        
+        .section-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;}
 
-        /* Oculta los campos condicionales por defecto */
-        #retrabajo-fields {
-            display: none;
-            padding-left: 15px;
-            border-left: 3px solid #007bff;
-            margin-top: 20px;
+        /* --- CAROUSEL SPINNER HORIZONTAL (Apple Style) --- */
+        .carousel-wrapper {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            /* Máscara para difuminar los bordes (Efecto iOS) */
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
         }
-        #otro-motor-field {
-            display: none;
-            margin-top: 10px;
+        .carousel-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            gap: 12px;
+            padding: 10px 40px; /* Padding para permitir centrar el primero/último */
+            scrollbar-width: none; /* Oculta scrollbar Firefox */
+            -webkit-overflow-scrolling: touch;
         }
+        .carousel-container::-webkit-scrollbar { display: none; }
+        
+        .carousel-item {
+            flex: 0 0 auto;
+            scroll-snap-align: center;
+            padding: 12px 24px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .carousel-item.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
+        }
+
+        /* --- RESUMEN DE MOTORES (En formulario principal) --- */
+        #resumen-motores-container {
+            display: none;
+            background: #f9f9fb;
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-top: 15px;
+        }
+        .resumen-flex { display: flex; justify-content: space-between; align-items: center; }
+        .resumen-col { text-align: center; flex: 1; }
+        .resumen-label { font-size: 12px; color: var(--text-secondary); margin: 0 0 4px 0; }
+        .resumen-valor { font-size: 16px; font-weight: bold; color: var(--text-main); margin: 0; }
+        .resumen-arrow { color: var(--border); font-size: 20px; }
+        
+        .btn-secondary {
+            width: 100%; margin-top: 15px; padding: 10px;
+            background: #e5e5ea; color: var(--text-main);
+            border: none; border-radius: var(--radius-sm);
+            font-weight: 500; cursor: pointer; transition: 0.2s;
+        }
+        .btn-secondary:hover { background: #d1d1d6; }
+
+        /* --- MODALES --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; transition: opacity 0.3s;
+        }
+        .modal-content {
+            background: var(--card-bg); width: 90%; max-width: 420px;
+            border-radius: var(--radius-lg); padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            transform: scale(0.95); transition: transform 0.3s;
+            max-height: 90vh; display: flex; flex-direction: column;
+        }
+        .modal-body { overflow-y: auto; margin-top: 10px; padding-bottom: 10px; }
+        
+        .modal-overlay.show { opacity: 1; display: flex; }
+        .modal-overlay.show .modal-content { transform: scale(1); }
+
+        /* GRID BOTONES MODAL */
+        .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .grid-btn {
+            padding: 14px 8px; background: #fff; border: 1px solid var(--border);
+            border-radius: var(--radius-md); cursor: pointer; text-align: center;
+            font-size: 15px; font-weight: 500; transition: 0.1s; user-select: none;
+        }
+        .grid-btn:active { transform: scale(0.95); }
+        .grid-btn.btn-otro { background: #f0f0f5; }
+        
+        /* FILAS MODAL OTRO */
+        .modal-row {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+            background: #f9f9fb; padding: 12px; border-radius: var(--radius-md);
+            border: 1px solid #ebebeb;
+        }
+        .mini-carousel-wrapper {
+            width: 120px; overflow: hidden; position: relative;
+            -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+        }
+        .mini-carousel {
+            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+            scroll-behavior: smooth; gap: 8px; padding: 5px 30px;
+            scrollbar-width: none;
+        }
+        .mini-carousel::-webkit-scrollbar { display: none; }
+        .mini-qty-btn {
+            flex: 0 0 36px; height: 36px; border-radius: 50%;
+            border: 1px solid var(--border); background: white;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; cursor: pointer; scroll-snap-align: center;
+            transition: 0.2s;
+        }
+        .mini-qty-btn.active { background: var(--text-main); color: white; border-color: var(--text-main); }
+
+        .btn-text { background: transparent; color: var(--primary); border: none; padding: 10px 0; font-size: 15px; cursor: pointer; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
 
         @media (max-width: 768px) {
-            .main-layout {
-                flex-direction: column;
-                max-width: 100%;
-                width: 100%;
-                border-radius: 0;
-            }
-            .column { padding: 20px; }
-            .column.image-column img {
-                height: 200px;
-                border-radius: 0;
-            }
+            .main-layout { flex-direction: column; width: 100%; margin: 0; border-radius: 0; min-height: 100vh;}
+            .column { padding: 24px; }
+            .column.image-column img { height: 180px; }
         }
     </style>
 </head>
@@ -117,33 +254,35 @@
 
         <div class="column">
             
+            <!-- SECCIÓN LOGIN -->
             <div id="login-container">
                 <h2>Inicio de Sesión</h2>
-                <div>
-                    <label for="num_empleado">Número de Empleado:</label>
+                <div class="input-group">
+                    <label>Número de Empleado:</label>
                     <input type="text" id="num_empleado" required minlength="7">
                 </div>
-                <div>
-                    <label for="estacion_trabajo">Estación de Trabajo:</label>
+                <div class="input-group">
+                    <label>Estación de Trabajo:</label>
                     <input type="text" id="estacion_trabajo" required minlength="10">
                 </div>
-                <button id="btn-login">Ingresar</button>
+                <button id="btn-login" class="btn-primary">Ingresar</button>
             </div>
 
+            <!-- SECCIÓN FORMULARIO -->
             <div id="formulario-container">
                 
-                <h3>Usuario: <span id="info-usuario"></span></h3>
+                <h3>Usuario <span id="info-usuario" style="color:var(--text-secondary); font-weight:400;"></span></h3>
                 <hr>
 
                 <form id="miFormulario">
                     
-                    <div>
-                        <label for="codigo_ticket">Código del ticket:</label>
-                        <input type="text" id="codigo_ticket" name="codigo_ticket" required>
+                    <div class="input-group">
+                        <label>Código del ticket:</label>
+                        <input type="text" id="codigo_ticket" name="codigo_ticket" required autocomplete="off">
                     </div>
                     
-                    <div>
-                        <label for="estatus">Estatus:</label>
+                    <div class="input-group">
+                        <label>Estatus:</label>
                         <select id="estatus" name="estatus">
                             <option value="Ok">Ok</option>
                             <option value="Retrabajo">Retrabajo</option>
@@ -152,203 +291,341 @@
 
                     <div id="retrabajo-fields">
                         
-                        <div>
-                            <label for="tipo_problema">Tipo de problema:</label>
+                        <div class="input-group">
+                            <label>Tipo de problema:</label>
                             <select id="tipo_problema" name="tipo_problema">
+                                <option value="" disabled selected>Selecciona un problema...</option>
                                 <option value="Se Baja">Se Baja</option>
                                 <option value="Se Sube">Se Sube</option>
                                 <option value="No Opera">No Opera</option>
                                 <option value="Sube Forzado">Sube Forzado</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="motor_ticket">Configuración de motor ticket:</label>
-                            <select id="motor_ticket" name="motor_ticket">
-                                <option value="HZ">HZ</option>
-                                <option value="HZ+5">HZ+5</option>
-                                <option value="AZ+AZ">AZ+AZ</option>
-                                <option value="BZ">BZ</option>
-                                <option value="AZ+HZ">AZ+HZ</option>
-                                <option value="2HZ">2HZ</option>
-                                <option value="HZ+BZ">HZ+BZ</option>
-                                <option value="2BZ">2BZ</option>
-                                <option value="2HZ+BZ">2HZ+BZ</option>
-                                <option value="2BZ+HZ">2BZ+HZ</option>
-                                <option value="3BZ">3BZ</option>
-                                <option value="3BZ+AZ">3BZ+AZ</option>
-                                <option value="4BZ">4BZ</option>
-                                <option value="AZ">AZ</option>
-                                <option value="AZ+7">AZ+7</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label for="motor_colocado">Nueva configuración de motor:</label>
-                            <select id="motor_colocado" name="motor_colocado">
-                                <option value="HZ">HZ</option>
-                                <option value="HZ+5">HZ+5</option>
-                                <option value="AZ+AZ">AZ+AZ</option>
-                                <option value="BZ">BZ</option>
-                                <option value="AZ+HZ">AZ+HZ</option>
-                                <option value="2HZ">2HZ</option>
-                                <option value="HZ+BZ">HZ+BZ</option>
-                                <option value="2BZ">2BZ</option>
-                                <option value="2HZ+BZ">2HZ+BZ</option>
-                                <option value="2BZ+HZ">2BZ+HZ</option>
-                                <option value="3BZ">3BZ</option>
-                                <option value="3BZ+AZ">3BZ+AZ</option>
-                                <option value="4BZ">4BZ</option>
-                                <option value="AZ">AZ</option>
-                                <option value="AZ+7">AZ+7</option>
-                                <option value="Otro">Otro</option>
+                                <option value="Caída Corta">Caída Corta</option>
+                                <option value="Caída Larga">Caída Larga</option>
                             </select>
                         </div>
 
-                        <div id="otro-motor-field">
-                            <label for="motor_otro">Especificar otro motor:</label>
-                            <input type="text" id="motor_otro" name="motor_otro" placeholder="Ejem. HZ+10">
+                        <!-- CONTENEDOR FRACCIONES (Solo Caídas) -->
+                        <div id="container-fracciones" style="display: none;">
+                            <div class="section-title">Cantidad (Pulgadas)</div>
+                            <div class="carousel-wrapper">
+                                <div class="carousel-container" id="fracciones-carousel"></div>
+                            </div>
+                            <input type="hidden" id="cantidad_caida" name="cantidad_caida">
+                        </div>
+
+                        <!-- RESUMEN MOTORES (No estira la página) -->
+                        <div id="resumen-motores-container">
+                            <div class="resumen-flex">
+                                <div class="resumen-col">
+                                    <p class="resumen-label">Motor Ticket</p>
+                                    <p class="resumen-valor" id="txt-motor-ticket">--</p>
+                                </div>
+                                <div class="resumen-arrow">➔</div>
+                                <div class="resumen-col">
+                                    <p class="resumen-label">Motor Nuevo</p>
+                                    <p class="resumen-valor" id="txt-motor-nuevo">--</p>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-secondary" id="btn-reconfigurar">Modificar Motores</button>
+                            
+                            <input type="hidden" id="motor_ticket" name="motor_ticket">
+                            <input type="hidden" id="motor_colocado" name="motor_colocado">
                         </div>
 
                     </div>
                     
-                    <button type="submit" id="btn-enviar">Enviar Datos</button>
+                    <button type="submit" id="btn-enviar" class="btn-primary" style="margin-top: 24px;">Enviar Datos</button>
                 </form>
                 
-                <p id="mensaje-exito">¡Datos guardados! Listo para el siguiente ticket.</p>
-                <p id="mensaje-error">Hubo un error al enviar. Intenta de nuevo.</p>
+                <div id="mensaje-exito" class="msg">¡Datos guardados exitosamente!</div>
+                <div id="mensaje-error" class="msg">Hubo un error al enviar. Intenta de nuevo.</div>
             </div>
         </div> 
     </div> 
 
+    <!-- MODAL 1: MOTOR TICKET -->
+    <div class="modal-overlay" id="modal-motor-ticket">
+        <div class="modal-content">
+            <h3>Paso 1: Motor del Ticket</h3>
+            <p style="color:var(--text-secondary); font-size:14px; margin-top:0;">Selecciona el motor que marca el sistema.</p>
+            <div class="modal-body">
+                <div class="btn-grid" id="grid-motor-ticket"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: MOTOR NUEVO -->
+    <div class="modal-overlay" id="modal-motor-nuevo">
+        <div class="modal-content">
+            <h3>Paso 2: Motor Nuevo Colocado</h3>
+            <p style="color:var(--text-secondary); font-size:14px; margin-top:0;">Selecciona el motor que instalaste.</p>
+            <div class="modal-body">
+                <div class="btn-grid" id="grid-motor-colocado"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: OTRO MOTOR (PERSONALIZADO) -->
+    <div class="modal-overlay" id="modal-otro">
+        <div class="modal-content">
+            <h3>Configuración Personalizada</h3>
+            <div class="modal-body" id="modal-rows-container">
+                <!-- Filas generadas por JS -->
+            </div>
+            <button type="button" class="btn-text" id="btn-add-motor">+ Añadir otro motor</button>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="btn-cerrar-modal" style="margin-top:0;">Cancelar</button>
+                <button type="button" class="btn-primary" id="btn-confirmar-modal">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- 1. CONFIGURACIÓN ---
-        // --- ¡¡¡IMPORTANTE!!! Si cambiaste el script, actualiza la URL aquí ---
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwx7vP0paetmNz2zT7-NCgiD5a-28v7J8SF3MfwYDX2nR1-NjKNob4hG-rX01JVHyXFlw/exec";
-
-        let empleadoLogueado = "";
-        let estacionLogueada = "";
-
-        // --- 2. REFERENCIAS A ELEMENTOS DEL DOM ---
-        const loginContainer = document.getElementById('login-container');
-        const formularioContainer = document.getElementById('formulario-container');
-        const btnLogin = document.getElementById('btn-login');
-        const infoUsuario = document.getElementById('info-usuario');
+        // --- CONFIGURACIÓN ---
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxylpQ-ft0rE4n3aO5U5Ua5MhDAtwoHf9xxotIMBblU1FFYGnMwP6NF8fMFzzVbbKORAw/exec";
         
-        const formulario = document.getElementById('miFormulario');
-        const mensajeExito = document.getElementById('mensaje-exito');
-        const mensajeError = document.getElementById('mensaje-error');
-        const btnEnviar = document.getElementById('btn-enviar');
+        let empleadoLogueado = "", estacionLogueada = "";
+        const motoresBase = ["HZ", "BZ", "AZ"]; 
+        const configRapidas = ["HZ", "HZ+5", "AZ+AZ", "BZ", "AZ+HZ", "2HZ", "HZ+BZ", "2BZ", "2HZ+BZ", "2BZ+HZ", "3BZ", "3BZ+AZ", "4BZ", "AZ", "AZ+7"];
 
+        // --- DOM ---
+        const formContainer = document.getElementById('formulario-container');
+        const loginContainer = document.getElementById('login-container');
+        const form = document.getElementById('miFormulario');
         const selectEstatus = document.getElementById('estatus');
-        const retrabajoFields = document.getElementById('retrabajo-fields');
-        const selectMotorColocado = document.getElementById('motor_colocado');
-        const otroMotorField = document.getElementById('otro-motor-field');
+        const selectProblema = document.getElementById('tipo_problema');
+        
+        const containerFracciones = document.getElementById('container-fracciones');
+        const containerResumenMotores = document.getElementById('resumen-motores-container');
+        
+        const inputMotorTicket = document.getElementById('motor_ticket');
+        const inputMotorNuevo = document.getElementById('motor_colocado');
+        const txtMotorTicket = document.getElementById('txt-motor-ticket');
+        const txtMotorNuevo = document.getElementById('txt-motor-nuevo');
 
+        // Modales
+        const modalTicket = document.getElementById('modal-motor-ticket');
+        const modalNuevo = document.getElementById('modal-motor-nuevo');
+        const modalOtro = document.getElementById('modal-otro');
 
-        // --- 3. EVENT LISTENER PARA EL "LOGIN" ---
-        btnLogin.addEventListener('click', function(e) {
+        // --- 1. LOGIN ---
+        document.getElementById('btn-login').addEventListener('click', e => {
             e.preventDefault();
+            const numE = document.getElementById('num_empleado').value;
+            const est = document.getElementById('estacion_trabajo').value;
+            if(numE.length <= 6) { alert("Escanea tu gafete ⚠️."); return; }
+            if(est.length < 10) { alert("Escanea tu estación ⚠️."); return; }
             
-            const numEmpleadoInput = document.getElementById('num_empleado');
-            const estacionInput = document.getElementById('estacion_trabajo');
-            const numEmpleado = numEmpleadoInput.value;
-            const estacion = estacionInput.value;
-            
-            if (numEmpleado.length <= 6) {
-                alert("Debes de escanear tu gafete ⚠️.");
-                numEmpleadoInput.focus(); 
-                return;
-            }
-            if (estacion.length < 10) {
-                alert("Debes de escanear el código de tu estación ⚠️.");
-                estacionInput.focus();
-                return;
-            }
-            
-            empleadoLogueado = numEmpleado;
-            estacionLogueada = estacion;
-            infoUsuario.textContent = `${empleadoLogueado} @ ${estacionLogueada}`;
-            loginContainer.style.display = 'none';
-            formularioContainer.style.display = 'block';
-            document.getElementById('codigo_ticket').focus();
+            empleadoLogueado = numE; estacionLogueada = est;
+            document.getElementById('info-usuario').textContent = `${numE} | ${est}`;
+            loginContainer.style.display = 'none'; formContainer.style.display = 'block';
         });
 
-        // --- 4. EVENT LISTENER PARA EL ENVÍO DEL FORMULARIO ---
-        formulario.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            
-            const codigoTicketInput = document.getElementById('codigo_ticket');
-            if (codigoTicketInput.value.trim() === "") {
-                 alert("Por favor, ingresa el 'Código del ticket'.");
-                 codigoTicketInput.focus();
-                 return;
+        // --- 2. GENERADORES DINÁMICOS ---
+        function centrarElementoCarrusel(elemento, contenedor) {
+            const offset = elemento.offsetLeft - contenedor.offsetLeft - (contenedor.offsetWidth / 2) + (elemento.offsetWidth / 2);
+            contenedor.scrollTo({ left: offset, behavior: 'smooth' });
+        }
+
+        function generarFracciones() {
+            const carousel = document.getElementById('fracciones-carousel');
+            let html = '';
+            for(let i = 1; i <= 32; i++) {
+                let entero = Math.floor(i / 16), resto = i % 16, str = "";
+                if (resto === 0) str = `${entero}"`;
+                else {
+                    let n = resto, d = 16;
+                    while(n%2===0 && d%2===0){ n/=2; d/=2; }
+                    str = entero > 0 ? `${entero} ${n}/${d}"` : `${n}/${d}"`;
+                }
+                html += `<div class="carousel-item" data-val="${str}">${str}</div>`;
             }
+            carousel.innerHTML = html;
+
+            carousel.querySelectorAll('.carousel-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    carousel.querySelectorAll('.carousel-item').forEach(el => el.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('cantidad_caida').value = this.dataset.val;
+                    centrarElementoCarrusel(this, carousel);
+                });
+            });
+        }
+
+        function generarGrids() {
+            const gridT = document.getElementById('grid-motor-ticket');
+            const gridN = document.getElementById('grid-motor-colocado');
             
-            mensajeExito.style.display = 'none';
-            mensajeError.style.display = 'none';
+            gridT.innerHTML = configRapidas.map(m => `<div class="grid-btn">${m}</div>`).join('');
+            gridN.innerHTML = configRapidas.map(m => `<div class="grid-btn">${m}</div>`).join('') + `<div class="grid-btn btn-otro">Otro...</div>`;
+
+            // Eventos Ticket
+            gridT.querySelectorAll('.grid-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    inputMotorTicket.value = this.textContent;
+                    txtMotorTicket.textContent = this.textContent;
+                    modalTicket.classList.remove('show');
+                    setTimeout(() => modalNuevo.classList.add('show'), 200); // Abre el paso 2
+                });
+            });
+
+            // Eventos Nuevo
+            gridN.querySelectorAll('.grid-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if(this.classList.contains('btn-otro')) {
+                        modalNuevo.classList.remove('show');
+                        setTimeout(abrirModalOtro, 200);
+                    } else {
+                        inputMotorNuevo.value = this.textContent;
+                        txtMotorNuevo.textContent = this.textContent;
+                        modalNuevo.classList.remove('show');
+                    }
+                });
+            });
+        }
+
+        generarFracciones(); generarGrids();
+
+        // --- 3. LÓGICA DE INTERFAZ ---
+        selectEstatus.addEventListener('change', function() {
+            document.getElementById('retrabajo-fields').style.display = this.value === 'Retrabajo' ? 'block' : 'none';
+        });
+
+        selectProblema.addEventListener('change', function() {
+            const v = this.value;
+            containerFracciones.style.display = 'none';
+            containerResumenMotores.style.display = 'none';
             
-            const formData = new FormData(this);
-            formData.append("numero_empleado", empleadoLogueado);
-            formData.append("estacion_trabajo", estacionLogueada);
+            if (v === 'Caída Corta' || v === 'Caída Larga') {
+                containerFracciones.style.display = 'block';
+            } else if (v) {
+                containerResumenMotores.style.display = 'block';
+                // Reset y abrir flujo
+                inputMotorTicket.value = ""; inputMotorNuevo.value = "";
+                txtMotorTicket.textContent = "--"; txtMotorNuevo.textContent = "--";
+                modalTicket.classList.add('show');
+            }
+        });
+
+        document.getElementById('btn-reconfigurar').addEventListener('click', () => modalTicket.classList.add('show'));
+
+        form.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.preventDefault(); });
+
+        // --- 4. MODAL "OTRO" (Personalizado con Spinner) ---
+        const modalRowsContainer = document.getElementById('modal-rows-container');
+        
+        function crearFilaModal() {
+            const row = document.createElement('div');
+            row.className = 'modal-row';
             
-            btnEnviar.disabled = true;
-            btnEnviar.textContent = 'Enviando...';
+            let qtyHtml = `<div class="mini-carousel-wrapper"><div class="mini-carousel">`;
+            for(let i=1; i<=10; i++) qtyHtml += `<div class="mini-qty-btn ${i===1?'active':''}">${i}</div>`;
+            qtyHtml += `</div></div>`;
+
+            let selectHtml = `<select class="modal-motor-select" style="flex:1;">`;
+            motoresBase.forEach(m => selectHtml += `<option value="${m}">${m}</option>`);
+            selectHtml += `</select>`;
+
+            row.innerHTML = qtyHtml + selectHtml;
             
-            fetch(URL_SCRIPT, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
+            const carousel = row.querySelector('.mini-carousel');
+            row.querySelectorAll('.mini-qty-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    row.querySelectorAll('.mini-qty-btn').forEach(el => el.classList.remove('active'));
+                    this.classList.add('active');
+                    centrarElementoCarrusel(this, carousel);
+                });
+            });
+
+            modalRowsContainer.appendChild(row);
+        }
+
+        function abrirModalOtro() {
+            modalRowsContainer.innerHTML = ''; 
+            crearFilaModal(); 
+            modalOtro.classList.add('show');
+        }
+
+        document.getElementById('btn-add-motor').addEventListener('click', crearFilaModal);
+        document.getElementById('btn-cerrar-modal').addEventListener('click', () => modalOtro.classList.remove('show'));
+
+        document.getElementById('btn-confirmar-modal').addEventListener('click', () => {
+            let configFinal = [];
+            modalRowsContainer.querySelectorAll('.modal-row').forEach(fila => {
+                const qtyNode = fila.querySelector('.mini-qty-btn.active');
+                const qty = qtyNode ? qtyNode.textContent : "1";
+                const motor = fila.querySelector('.modal-motor-select').value;
+                configFinal.push(`${qty > 1 ? qty : ''}${motor}`); 
+            });
+
+            const stringFinal = configFinal.join('+'); 
+            inputMotorNuevo.value = stringFinal;
+            txtMotorNuevo.textContent = stringFinal;
+            modalOtro.classList.remove('show');
+        });
+
+        // --- 5. ENVÍO DE DATOS ---
+        // --- 5. ENVÍO DE DATOS ---
+        form.addEventListener('submit', function(e) {
+            e.preventDefault() 
+            const prob = selectProblema.value
+
+            if (selectEstatus.value === 'Retrabajo') {
+                if (!prob) { return alert("Selecciona el tipo de problema.")}
+                if ((prob.includes('Caída')) && !document.getElementById('cantidad_caida').value) {
+                    return alert("Selecciona la cantidad en pulgadas.")
+                }
+                if (!prob.includes('Caída') && (!inputMotorTicket.value || !inputMotorNuevo.value)) {
+                    return alert("Por favor, completa la configuración de motores.") 
+                }
+            }
+
+            const btnEnviar = document.getElementById('btn-enviar')
+            const msgExito = document.getElementById('mensaje-exito')
+            const msgError = document.getElementById('mensaje-error')
+
+            msgExito.style.display = 'none'
+            msgError.style.display = 'none'
+            btnEnviar.disabled = true
+            btnEnviar.textContent = 'Enviando...'
+            
+            const formData = new FormData(this)
+            formData.append("numero_empleado", empleadoLogueado)
+            formData.append("estacion_trabajo", estacionLogueada)
+            
+            fetch(URL_SCRIPT, { method: 'POST', body: formData })
+            .then(res => res.json())
             .then(data => {
                 if (data.result === 'success') {
-                    mensajeExito.style.display = 'block';
-                    formulario.reset(); 
+                    msgExito.style.display = 'block'
+                    form.reset() 
                     
-                    retrabajoFields.style.display = 'none';
-                    otroMotorField.style.display = 'none';
+                    // --- RESETEO TOTAL DE LA UI ---
+                    document.getElementById('retrabajo-fields').style.display = 'none'
+                    containerResumenMotores.style.display = 'none'
+                    containerFracciones.style.display = 'none'
                     
-                    document.getElementById('codigo_ticket').focus(); 
-                } else {
-                    console.error('Error del script:', data.error); 
-                    mensajeError.style.display = 'block';
+                    txtMotorTicket.textContent = "--"
+                    txtMotorNuevo.textContent = "--"
+                    inputMotorTicket.value = ""
+                    inputMotorNuevo.value = ""
+                    document.getElementById('cantidad_caida').value = ""
+                    
+                    document.querySelectorAll('.carousel-item').forEach(el => el.classList.remove('active'))
+                    // ------------------------------
+                    
+                    document.getElementById('codigo_ticket').focus() 
+                } else { 
+                    msgError.style.display = 'block' 
                 }
             })
-            .catch(error => {
-                console.error('Error de Fetch:', error);
-                mensajeError.style.display = 'block';
-            })
+            .catch(() => msgError.style.display = 'block')
             .finally(() => {
-                btnEnviar.disabled = false;
-                btnEnviar.textContent = 'Enviar Datos';
-            });
+                btnEnviar.disabled = false
+                btnEnviar.textContent = 'Enviar Datos'
+                setTimeout(() => msgExito.style.display = 'none', 3000)
+            })
         });
-
-        // --- 5. LÓGICA CONDICIONAL ---
-        selectEstatus.addEventListener('change', function() {
-            if (this.value === 'Retrabajo') {
-                retrabajoFields.style.display = 'block';
-            } else {
-                retrabajoFields.style.display = 'none';
-                otroMotorField.style.display = 'none';
-            }
-        });
-
-        selectMotorColocado.addEventListener('change', function() {
-            if (this.value === 'Otro') {
-                otroMotorField.style.display = 'block';
-                document.getElementById('motor_otro').focus();
-            } else {
-                otroMotorField.style.display = 'none';
-            }
-        });
-
-        formulario.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && event.target.nodeName === 'INPUT') {
-                event.preventDefault();
-            }
-        });
-
     </script>
-
 </body>
 </html>
