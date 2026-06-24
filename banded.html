@@ -242,6 +242,26 @@
             .column { padding: 24px; }
             .column.image-column img { height: 180px; }
         }
+
+        /* --- CAROUSEL SPINNER --- */
+        .carousel-wrapper { width: 100%; overflow: hidden; position: relative; -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+        .carousel-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; gap: 12px; padding: 10px 40px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .carousel-container::-webkit-scrollbar { display: none; }
+        
+        .carousel-item { flex: 0 0 auto; scroll-snap-align: center; padding: 12px 24px; background: #fff; border: 1px solid var(--border); border-radius: 30px; cursor: pointer; font-size: 16px; font-weight: 500; transition: all 0.2s ease; user-select: none; }
+        .carousel-item.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
+
+        /* --- GRID BOTONES --- */
+        .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .grid-btn { padding: 14px 8px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; text-align: center; font-size: 15px; font-weight: 500; user-select: none; }
+        .grid-btn.active { background: var(--text-main); color: white; border-color: var(--text-main); }
+        .btn-secondary { width: 100%; margin-top: 15px; padding: 10px; background: #e5e5ea; color: var(--text-main); border: none; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; }
+
+        /* --- MODALES --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--primary); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--card-bg); width: 90%; max-width: 420px; border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .modal-overlay.show { display: flex; }
+
     </style>
 </head>
 <body>
@@ -302,6 +322,15 @@
                                 <option value="Caída Corta">Caída Corta</option>
                                 <option value="Caída Larga">Caída Larga</option>
                             </select>
+                        </div>
+
+                        <div id="container-cassette" style="display: none; margin-top: 20px;">
+                            <div class="section-title">Tipo de Cassette</div>
+                            <div class="btn-grid" style="grid-template-columns: 1fr 1fr;">
+                                <div class="grid-btn" data-val="Cassette Grande">Cassette Grande</div>
+                                <div class="grid-btn" data-val="Cassette Chico">Cassette Chico</div>
+                            </div>
+                            <input type="hidden" id="tipo_cassette" name="tipo_cassette">
                         </div>
 
                         <!-- CONTENEDOR FRACCIONES (Solo Caídas) -->
@@ -382,7 +411,7 @@
 
     <script>
         // --- CONFIGURACIÓN ---
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxylpQ-ft0rE4n3aO5U5Ua5MhDAtwoHf9xxotIMBblU1FFYGnMwP6NF8fMFzzVbbKORAw/exec";
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycby40P2FLFXbdEYvU8lgisqM7vBT2EBfwty5rb23bG61G2JNSTVvueSWaPtYb7qgoSuocA/exec";
         
         let empleadoLogueado = "", estacionLogueada = "";
         const motoresBase = ["HZ", "BZ", "AZ"]; 
@@ -495,9 +524,20 @@
             const v = this.value;
             containerFracciones.style.display = 'none';
             containerResumenMotores.style.display = 'none';
+            document.getElementById('container-cassette').style.display = 'none';
             
             if (v === 'Caída Corta' || v === 'Caída Larga') {
                 containerFracciones.style.display = 'block';
+                document.getElementById('container-cassette').style.display = 'block';
+
+                document.querySelector('#container-cassette .btn-grid').addEventListener('click', function(e) {
+                    const btn = e.target.closest('.grid-btn');
+                    if (!btn) return;
+                    this.querySelectorAll('.grid-btn').forEach(el => el.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById('tipo_cassette').value = btn.dataset.val;
+                });
+
             } else if (v) {
                 containerResumenMotores.style.display = 'block';
                 // Reset y abrir flujo
@@ -506,6 +546,7 @@
                 modalTicket.classList.add('show');
             }
         });
+
 
         document.getElementById('btn-reconfigurar').addEventListener('click', () => modalTicket.classList.add('show'));
 
@@ -563,7 +604,8 @@
             txtMotorNuevo.textContent = stringFinal;
             modalOtro.classList.remove('show');
         });
-        
+
+        // --- 5. ENVÍO DE DATOS ---
         // --- 5. ENVÍO DE DATOS ---
         form.addEventListener('submit', function(e) {
             e.preventDefault() 
@@ -610,6 +652,10 @@
                     inputMotorNuevo.value = ""
                     document.getElementById('cantidad_caida').value = ""
                     
+                    // En el bloque del éxito del submit
+                    document.getElementById('container-cassette').style.display = 'none';
+                    document.getElementById('tipo_cassette').value = "";
+                    document.querySelectorAll('#container-cassette .grid-btn').forEach(el => el.classList.remove('active'));
                     document.querySelectorAll('.carousel-item').forEach(el => el.classList.remove('active'))
                     // ------------------------------
                     
