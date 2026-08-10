@@ -560,7 +560,7 @@
             const btnEnviar = document.getElementById('btn-enviar');
             btnEnviar.disabled = true; btnEnviar.textContent = 'Procesando...';
             
-            fetch(URL_SCRIPT, { method: 'POST', body: formData })
+            fetch(URL_SCRIPT, { method: 'POST', body: formData, mode: 'no-cors', headers: {'Content-Type': 'application/x-www-form-urlencoded'} })
             .then(response => response.json())
             .then(data => {
                 if (data.result === 'success') {
