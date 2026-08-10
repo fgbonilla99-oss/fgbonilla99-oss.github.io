@@ -538,17 +538,25 @@
         document.getElementById('miFormulario').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.nodeName === 'INPUT' && e.target.id !== 'modal-input-cuantas') e.preventDefault(); });
 
         // Enviar final
+        // Enviar final
         document.getElementById('miFormulario').addEventListener('submit', function(e) {
             e.preventDefault(); 
             const codigoTicketInput = document.getElementById('codigo_ticket');
-            if (codigoTicketInput.value.trim() === "" || codigoTicketInput.value.length < 17) { alert("Revisa el ticket."); codigoTicketInput.focus(); return; }
-
+            if (codigoTicketInput.value.trim() === "" || codigoTicketInput.value.length < 17) { 
+                alert("Revisa el ticket."); 
+                codigoTicketInput.focus(); 
+                return; 
+            }
+        
             const tipoProblemaVal = document.getElementById('tipo_problema').value;
             if (document.getElementById('estatus').value === 'Retrabajo' && flujosProblema[tipoProblemaVal] && accionResuelta === "") {
-                alert("Completa el flujo."); document.getElementById('modal-seguimiento').style.display = 'flex'; return;
+                alert("Completa el flujo."); 
+                document.getElementById('modal-seguimiento').style.display = 'flex'; 
+                return;
             }
             
-            document.getElementById('mensaje-exito').style.display = 'none'; document.getElementById('mensaje-error').style.display = 'none';
+            document.getElementById('mensaje-exito').style.display = 'none'; 
+            document.getElementById('mensaje-error').style.display = 'none';
             
             const formData = new FormData(this);
             formData.append("numero_empleado", empleadoLogueado);
@@ -557,10 +565,17 @@
             formData.append("cantidad_accion", cantidadAplicada);
             formData.append("resultado_retrabajo", resultadoRetrabajo);
             
+            // CONVERSIÓN CLAVE: Alinear la estructura del body con Content-Type
+            const payload = new URLSearchParams(formData);
+        
             const btnEnviar = document.getElementById('btn-enviar');
-            btnEnviar.disabled = true; btnEnviar.textContent = 'Procesando...';
+            btnEnviar.disabled = true; 
+            btnEnviar.textContent = 'Procesando...';
             
-            fetch(URL_SCRIPT, { method: 'POST', body: formData, mode: 'no-cors', headers: {'Content-Type': 'application/x-www-form-urlencoded'} })
+            fetch(URL_SCRIPT, { 
+                method: 'POST', 
+                body: payload 
+            })
             .then(response => response.json())
             .then(data => {
                 if (data.result === 'success') {
@@ -570,11 +585,19 @@
                     document.getElementById('motor_ticket').value = "N/A";
                     document.getElementById('motor_colocado').value = "N/A";
                     accionResuelta = ""; cantidadAplicada = ""; resultadoRetrabajo = ""; modoRevisionPendiente = false;
-                    setTimeout(() => { document.getElementById('mensaje-exito').style.display = 'none'; document.getElementById('codigo_ticket').focus(); }, 1200);
-                } else document.getElementById('mensaje-error').style.display = 'block';
+                    setTimeout(() => { 
+                        document.getElementById('mensaje-exito').style.display = 'none'; 
+                        document.getElementById('codigo_ticket').focus(); 
+                    }, 1200);
+                } else {
+                    document.getElementById('mensaje-error').style.display = 'block';
+                }
             })
             .catch(() => document.getElementById('mensaje-error').style.display = 'block')
-            .finally(() => { btnEnviar.disabled = false; btnEnviar.textContent = 'Guardar Registro'; });
+            .finally(() => { 
+                btnEnviar.disabled = false; 
+                btnEnviar.textContent = 'Guardar Registro'; 
+            });
         });
     </script>
 </body>
