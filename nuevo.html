@@ -247,10 +247,12 @@
             // === CAMBIO: Deshabilitar botón antes de enviar ===
             btnEnviar.disabled = true;
             btnEnviar.textContent = 'Enviando...';
+
+            const payload = new URLSearchParams(formData);
             
             fetch(URL_SCRIPT, {
                 method: 'POST',
-                body: formData
+                body: payload
             })
             .then(response => response.json())
             .then(data => {
